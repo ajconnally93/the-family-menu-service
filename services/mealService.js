@@ -49,6 +49,7 @@ async function getAllMeals({ search, tag, sort }) {
     throw error;
   }
 
+  // built sorting logic to add later as a stretch goal
   const meals = await Meal.find(query).sort(sortOption);
 
   return {
