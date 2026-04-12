@@ -1,4 +1,6 @@
+const mongoose = require('mongoose');
 const MealPlan = require('../models/MealPlan');
+const Meal = require('../models/Meal');
 
 const getMealPlans = async (req, res) => {
   try {
@@ -188,9 +190,183 @@ const updateMealPlan = async (req, res) => {
   }
 };
 
+const addMealToPlan = async (req, res) => {
+  try {
+    const { planId } = req.params;
+    const { mealId, servingsOverride = null } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(planId)) {
+      return res.status(400).json({
+        error: {
+          code: 'INVALID_PLAN_ID',
+          message: 'planId must be a valid ObjectId.'
+        }
+      });
+    }
+
+    if (!mealId) {
+      return res.status(400).json({
+        error: {
+          code: 'MEAL_ID_REQUIRED',
+          message: 'mealId is required.'
+        }
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(mealId)) {
+      return res.status(400).json({
+        error: {
+          code: 'INVALID_MEAL_ID',
+          message: 'mealId must be a valid ObjectId.'
+        }
+      });
+    }
+
+    const mealPlan = await MealPlan.findById(planId);
+
+    if (!mealPlan) {
+      return res.status(404).json({
+        error: {
+          code: 'MEAL_PLAN_NOT_FOUND',
+          message: 'No meal plan exists for the supplied planId.'
+        }
+      });
+    }
+
+    const meal = await Meal.findById(mealId);
+
+    if (!meal) {
+      return res.status(404).json({
+        error: {
+          code: 'MEAL_NOT_FOUND',
+          message: 'No meal exists for the supplied mealId.'
+        }
+      });
+    }
+
+    const alreadyInPlan = mealPlan.meals.some(
+      (mealRef) => mealRef.mealId.toString() === mealId
+    );
+
+    if (alreadyInPlan) {
+      return res.status(409).json({
+        error: {
+          code: 'MEAL_ALREADY_IN_PLAN',
+          message: 'This meal has already been added to the selected meal plan.'
+        }
+      });
+    }
+
+    mealPlan.meals.push({
+      mealId,
+      servingsOverride
+    });
+
+    mealPlan.estimatedTotalCost += meal.estimatedMealCost;
+
+    await mealPlan.save();
+
+    res.status(201).json({
+      data: {
+        planId: mealPlan._id,
+        mealCount: mealPlan.meals.length,
+        estimatedTotalCost: mealPlan.estimatedTotalCost
+      },
+      message: 'Meal added to meal plan successfully.'
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: {
+        code: 'SERVER_ERROR',
+        message: error.message
+      }
+    });
+  }
+};
+
+const removeMealFromPlan = async (req, res) => {
+  try {
+    const { planId, mealId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(planId)) {
+      return res.status(400).json({
+        error: {
+          code: 'INVALID_PLAN_ID',
+          message: 'planId must be a valid ObjectId.'
+        }
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(mealId)) {
+      return res.status(400).json({
+        error: {
+          code: 'INVALID_MEAL_ID',
+          message: 'mealId must be a valid ObjectId.'
+        }
+      });
+    }
+
+    const mealPlan = await MealPlan.findById(planId);
+
+    if (!mealPlan) {
+      return res.status(404).json({
+        error: {
+          code: 'MEAL_PLAN_NOT_FOUND',
+          message: 'No meal plan exists for the supplied planId.'
+        }
+      });
+    }
+
+    const mealIndex = mealPlan.meals.findIndex(
+      (mealRef) => mealRef.mealId.toString() === mealId
+    );
+
+    if (mealIndex === -1) {
+      return res.status(404).json({
+        error: {
+          code: 'MEAL_NOT_IN_PLAN',
+          message: 'This meal is not part of the selected meal plan.'
+        }
+      });
+    }
+
+    const meal = await Meal.findById(mealId);
+
+    if (meal) {
+      mealPlan.estimatedTotalCost -= meal.estimatedMealCost;
+
+      if (mealPlan.estimatedTotalCost < 0) {
+        mealPlan.estimatedTotalCost = 0;
+      }
+    }
+
+    mealPlan.meals.splice(mealIndex, 1);
+
+    await mealPlan.save();
+
+    res.status(200).json({
+      data: {
+        planId: mealPlan._id,
+        mealCount: mealPlan.meals.length,
+        estimatedTotalCost: mealPlan.estimatedTotalCost
+      },
+      message: 'Meal removed from meal plan successfully.'
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: {
+        code: 'SERVER_ERROR',
+        message: error.message
+      }
+    });
+  }
+};
+
 module.exports = {
   getMealPlans,
   createMealPlan,
   getMealPlanById,
-  updateMealPlan
+  updateMealPlan,
+  addMealToPlan,
+  removeMealFromPlan
 };

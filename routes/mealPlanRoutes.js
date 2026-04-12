@@ -6,19 +6,16 @@ const {
   getMealPlans,
   createMealPlan,
   getMealPlanById,
-  updateMealPlan
+  updateMealPlan,
+  addMealToPlan,
+  removeMealFromPlan
 } = require('../controllers/mealPlanController');
 
-// GET /api/meal-plans
 router.get('/', getMealPlans);
-
-// POST /api/meal-plans
 router.post('/', createMealPlan);
-
-// GET /api/meal-plans/:planId
 router.get('/:planId', getMealPlanById);
-
-// PUT /api/meal-plans/:planId
 router.put('/:planId', updateMealPlan);
+router.post('/:planId/meals', addMealToPlan);
+router.delete('/:planId/meals/:mealId', removeMealFromPlan);
 
 module.exports = router;
