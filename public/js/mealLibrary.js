@@ -59,7 +59,13 @@ function renderMeals(meals) {
               ${tagsHtml}
             </div>
             <div class="meal-actions">
-              <button class="btn btn-primary" type="button">Add to Meal Plan</button>
+              <button 
+                class="btn btn-primary add-to-plan-btn"
+                type="button"
+                data-meal-id="${meal._id}"
+              >
+                Add to Meal Plan
+              </button>
               <button class="btn btn-outline-custom" type="button">View Recipe</button>
             </div>
           </div>
@@ -69,6 +75,8 @@ function renderMeals(meals) {
 
     container.appendChild(col);
   });
+
+  setupAddToPlanButtons();
 }
 
 function renderErrorState() {
@@ -97,6 +105,62 @@ function setupTagFilters() {
 
       const selectedTag = chip.dataset.tag;
       loadMeals(selectedTag);
+    });
+  });
+}
+
+function setupAddToPlanButtons() {
+  const buttons = document.querySelectorAll('.add-to-plan-btn');
+
+  buttons.forEach((button) => {
+    button.addEventListener('click', async () => {
+      const mealId = button.dataset.mealId;
+
+      if (!mealId) {
+        console.error('Missing mealId');
+        return;
+      }
+
+      const originalText = button.textContent;
+      button.disabled = true;
+      button.textContent = 'Adding...';
+
+      try {
+        const planResponse = await fetch(`/api/meal-plans?userId=${encodeURIComponent('123456789012345678901234')}&status=draft`);
+        const planResult = await planResponse.json();
+
+        const rawData = planResult.data;
+        const mealPlan = Array.isArray(rawData) ? rawData[0] : rawData;
+
+        if (!mealPlan || !mealPlan._id) {
+          throw new Error('No draft meal plan found.');
+        }
+
+        const response = await fetch(`/api/meal-plans/${mealPlan._id}/meals`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            mealId: mealId
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to add meal. Status: ${response.status}`);
+        }
+
+        button.textContent = 'Added!';
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.disabled = false;
+        }, 1000);
+      } catch (error) {
+        console.error('Error adding meal:', error);
+        button.textContent = originalText;
+        button.disabled = false;
+        alert('Unable to add meal. Please try again.');
+      }
     });
   });
 }

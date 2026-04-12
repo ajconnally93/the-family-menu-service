@@ -2,16 +2,27 @@ const USER_ID = '123456789012345678901234'; // TODO: replace with real logged-in
 
 async function loadMealPlan() {
   try {
-    const response = await fetch(`/api/meal-plans?userId=${encodeURIComponent(USER_ID)}&status=draft`);
-    const result = await response.json();
+    const planLookupResponse = await fetch(
+      `/api/meal-plans?userId=${encodeURIComponent(USER_ID)}&status=draft`
+    );
+    const planLookupResult = await planLookupResponse.json();
 
-    // Handles either:
-    // 1) an array response: { data: [ ...plans ] }
-    // 2) a single object response: { data: { ...plan } }
-    const rawData = result.data;
-    const mealPlan = Array.isArray(rawData) ? rawData[0] : rawData;
+    const rawData = planLookupResult.data;
+    const basicMealPlan = Array.isArray(rawData) ? rawData[0] : rawData;
 
-    renderMealPlan(mealPlan || null);
+    if (!basicMealPlan || !basicMealPlan._id) {
+      renderMealPlan(null);
+      return;
+    }
+
+    const populatedResponse = await fetch(
+      `/api/meal-plans/${basicMealPlan._id}?includeMeals=true`
+    );
+    const populatedResult = await populatedResponse.json();
+
+    const mealPlan = populatedResult.data || null;
+
+    renderMealPlan(mealPlan);
   } catch (error) {
     console.error('Error loading meal plan:', error);
     renderErrorState();
@@ -80,7 +91,7 @@ function renderMealPlan(mealPlan) {
             </div>
             <div class="meal-actions">
               <button
-                class="btn btn-outline-danger"
+                class="btn btn-outline-danger remove-meal-btn"
                 type="button"
                 data-plan-id="${mealPlan._id}"
                 data-meal-id="${entry.mealId}"
@@ -88,7 +99,7 @@ function renderMealPlan(mealPlan) {
                 Remove Meal
               </button>
               <button
-                class="btn btn-outline-custom"
+                class="btn btn-outline-custom view-recipe-btn"
                 type="button"
                 data-meal-id="${entry.mealId}"
               >
@@ -102,6 +113,8 @@ function renderMealPlan(mealPlan) {
 
     container.appendChild(col);
   });
+
+  setupRemoveMealButtons();
 }
 
 function renderErrorState() {
@@ -122,6 +135,43 @@ function renderErrorState() {
       </div>
     </div>
   `;
+}
+
+function setupRemoveMealButtons() {
+  const buttons = document.querySelectorAll('.remove-meal-btn');
+
+  buttons.forEach((button) => {
+    button.addEventListener('click', async () => {
+      const planId = button.dataset.planId;
+      const mealId = button.dataset.mealId;
+
+      if (!planId || !mealId) {
+        console.error('Missing planId or mealId for removal.');
+        return;
+      }
+
+      const originalText = button.textContent;
+      button.disabled = true;
+      button.textContent = 'Removing...';
+
+      try {
+        const response = await fetch(`/api/meal-plans/${planId}/meals/${mealId}`, {
+          method: 'DELETE'
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to remove meal. Status: ${response.status}`);
+        }
+
+        await loadMealPlan();
+      } catch (error) {
+        console.error('Error removing meal:', error);
+        button.disabled = false;
+        button.textContent = originalText;
+        alert('Unable to remove meal. Please try again.');
+      }
+    });
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
