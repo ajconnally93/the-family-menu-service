@@ -102,7 +102,7 @@ const getMealPlanById = async (req, res) => {
     const { planId } = req.params;
     const { includeMeals } = req.query;
 
-    let mealPlan = await MealPlan.findById(planId);
+    const mealPlan = await MealPlan.findById(planId);
 
     if (!mealPlan) {
       return res.status(404).json({
@@ -113,11 +113,31 @@ const getMealPlanById = async (req, res) => {
       });
     }
 
-    // If includeMeals=true, populate meal details
     if (includeMeals === 'true') {
-      mealPlan = await MealPlan.findById(planId).populate({
+      const populatedPlan = await MealPlan.findById(planId).populate({
         path: 'meals.mealId',
         select: 'title estimatedMealCost imageUrl'
+      });
+
+      const reshapedMeals = populatedPlan.meals.map((mealEntry) => ({
+        mealId: mealEntry.mealId._id,
+        servingsOverride: mealEntry.servingsOverride,
+        meal: {
+          title: mealEntry.mealId.title,
+          estimatedMealCost: mealEntry.mealId.estimatedMealCost,
+          imageUrl: mealEntry.mealId.imageUrl
+        }
+      }));
+
+      return res.status(200).json({
+        data: {
+          _id: populatedPlan._id,
+          userId: populatedPlan.userId,
+          status: populatedPlan.status,
+          estimatedTotalCost: populatedPlan.estimatedTotalCost,
+          meals: reshapedMeals,
+          updatedAt: populatedPlan.updatedAt
+        }
       });
     }
 
