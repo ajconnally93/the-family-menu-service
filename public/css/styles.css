@@ -284,3 +284,35 @@ h3 {
   color: var(--text-soft);
   margin-bottom: 0;
 }
+
+.plan-summary {
+  max-width: 320px;
+}
+
+.summary-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 2px 6px rgba(34, 34, 34, 0.08);
+  padding: 1.25rem 1.5rem;
+}
+
+.summary-label {
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.recipe-modal-content {
+  border-radius: 18px;
+  border: 1px solid var(--border);
+}
+
+.recipe-list {
+  padding-left: 1.25rem;
+}
+
+.recipe-list li + li {
+  margin-top: 0.5rem;
+}

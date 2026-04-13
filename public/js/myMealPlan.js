@@ -101,7 +101,11 @@ function renderMealPlan(mealPlan) {
               <button
                 class="btn btn-outline-custom view-recipe-btn"
                 type="button"
-                data-meal-id="${entry.mealId}"
+                data-title="${meal.title || 'Untitled Meal'}"
+                data-cost="${typeof meal.estimatedMealCost === 'number' ? meal.estimatedMealCost.toFixed(2) : '0.00'}"
+                data-description="${meal.description || 'No description available.'}"
+                data-ingredients='${JSON.stringify(meal.ingredients || [])}'
+                data-instructions='${JSON.stringify(meal.instructions || [])}'
               >
                 View Recipe
               </button>
@@ -115,6 +119,7 @@ function renderMealPlan(mealPlan) {
   });
 
   setupRemoveMealButtons();
+  setupViewRecipeButtons();
 }
 
 function renderErrorState() {
@@ -172,6 +177,90 @@ function setupRemoveMealButtons() {
       }
     });
   });
+}
+
+function setupViewRecipeButtons() {
+  const buttons = document.querySelectorAll('.view-recipe-btn');
+  const modalElement = document.getElementById('recipeModal');
+
+  if (!modalElement) {
+    return;
+  }
+
+  const recipeModal = new bootstrap.Modal(modalElement);
+
+  buttons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const title = button.dataset.title || 'Untitled Meal';
+      const cost = button.dataset.cost || '0.00';
+      const description = button.dataset.description || 'No description available.';
+
+      let ingredients = [];
+      let instructions = [];
+
+      try {
+        ingredients = JSON.parse(button.dataset.ingredients || '[]');
+      } catch (error) {
+        ingredients = [];
+      }
+
+      try {
+        instructions = JSON.parse(button.dataset.instructions || '[]');
+      } catch (error) {
+        instructions = [];
+      }
+
+      populateRecipeModal({
+        title,
+        cost,
+        description,
+        ingredients,
+        instructions
+      });
+
+      recipeModal.show();
+    });
+  });
+}
+
+function populateRecipeModal({ title, cost, description, ingredients, instructions }) {
+  const titleElement = document.getElementById('recipeModalTitle');
+  const costElement = document.getElementById('recipeModalCost');
+  const descriptionElement = document.getElementById('recipeModalDescription');
+  const ingredientsElement = document.getElementById('recipeModalIngredients');
+  const instructionsElement = document.getElementById('recipeModalInstructions');
+
+  titleElement.textContent = title;
+  costElement.textContent = `$${cost}`;
+  descriptionElement.textContent = description;
+
+  ingredientsElement.innerHTML = '';
+  instructionsElement.innerHTML = '';
+
+  if (ingredients.length) {
+    ingredients.forEach((ingredient) => {
+      const li = document.createElement('li');
+
+      const quantity = ingredient.quantity ?? '';
+      const unit = ingredient.unit ?? '';
+      const name = ingredient.name ?? 'Unnamed ingredient';
+
+      li.textContent = `${quantity} ${unit} ${name}`.replace(/\s+/g, ' ').trim();
+      ingredientsElement.appendChild(li);
+    });
+  } else {
+    ingredientsElement.innerHTML = '<li>No ingredients available.</li>';
+  }
+
+  if (instructions.length) {
+    instructions.forEach((step) => {
+      const li = document.createElement('li');
+      li.textContent = step;
+      instructionsElement.appendChild(li);
+    });
+  } else {
+    instructionsElement.innerHTML = '<li>No instructions available.</li>';
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
