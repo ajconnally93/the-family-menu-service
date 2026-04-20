@@ -1,7 +1,13 @@
-const USER_ID = '123456789012345678901234'; // TODO: replace with real logged-in user later
+const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+const USER_ID = currentUser?._id;
 
 async function loadMealPlan() {
   try {
+    if (!USER_ID) {
+      window.location.href = '/login.html';
+      return;
+    }
+
     const planLookupResponse = await fetch(
       `/api/meal-plans?userId=${encodeURIComponent(USER_ID)}&status=draft`
     );

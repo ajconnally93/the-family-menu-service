@@ -1,3 +1,6 @@
+const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+const USER_ID = currentUser?._id;
+
 async function loadMeals(tag = '') {
   try {
     const url = tag ? `/api/meals?tag=${encodeURIComponent(tag)}` : '/api/meals';
@@ -128,6 +131,11 @@ function setupAddToPlanButtons() {
     button.addEventListener('click', async () => {
       const mealId = button.dataset.mealId;
 
+      if (!USER_ID) {
+        window.location.href = '/login.html';
+        return;
+      }
+
       if (!mealId) {
         console.error('Missing mealId');
         return;
@@ -138,14 +146,34 @@ function setupAddToPlanButtons() {
       button.textContent = 'Adding...';
 
       try {
-        const planResponse = await fetch(`/api/meal-plans?userId=${encodeURIComponent('123456789012345678901234')}&status=draft`);
+        let mealPlan = null;
+
+        const planResponse = await fetch(
+          `/api/meal-plans?userId=${encodeURIComponent(USER_ID)}&status=draft`
+        );
         const planResult = await planResponse.json();
 
         const rawData = planResult.data;
-        const mealPlan = Array.isArray(rawData) ? rawData[0] : rawData;
+        mealPlan = Array.isArray(rawData) ? rawData[0] : rawData;
 
         if (!mealPlan || !mealPlan._id) {
-          throw new Error('No draft meal plan found.');
+          const createPlanResponse = await fetch('/api/meal-plans', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              userId: USER_ID
+            })
+          });
+
+          const createPlanResult = await createPlanResponse.json();
+
+          if (!createPlanResponse.ok) {
+            throw new Error(createPlanResult.error?.message || 'Failed to create draft meal plan.');
+          }
+
+          mealPlan = createPlanResult.data;
         }
 
         const response = await fetch(`/api/meal-plans/${mealPlan._id}/meals`, {
@@ -158,8 +186,10 @@ function setupAddToPlanButtons() {
           })
         });
 
+        const result = await response.json();
+
         if (!response.ok) {
-          throw new Error(`Failed to add meal. Status: ${response.status}`);
+          throw new Error(result.error?.message || `Failed to add meal. Status: ${response.status}`);
         }
 
         button.textContent = 'Added!';
@@ -171,7 +201,7 @@ function setupAddToPlanButtons() {
         console.error('Error adding meal:', error);
         button.textContent = originalText;
         button.disabled = false;
-        alert('Unable to add meal. Please try again.');
+        alert(error.message || 'Unable to add meal. Please try again.');
       }
     });
   });
