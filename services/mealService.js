@@ -1,5 +1,18 @@
 const Meal = require('../models/Meal');
 
+function calculateEstimatedMealCost(ingredients = []) {
+  return Number(
+    ingredients
+      .reduce((total, ingredient) => {
+        const quantity = Number(ingredient.quantity) || 0;
+        const unitCost = Number(ingredient.estimatedUnitCost) || 0;
+
+        return total + quantity * unitCost;
+      }, 0)
+      .toFixed(2)
+  );
+}
+
 function buildMealQuery({ search, tag }) {
   const query = {};
     // Built functionality for searching if I decided to implement it later
@@ -70,7 +83,13 @@ async function getMealById(mealId) {
 }
 
 async function createMeal(mealData) {
-  const meal = new Meal(mealData);
+  const estimatedMealCost = calculateEstimatedMealCost(mealData.ingredients);
+
+  const meal = new Meal({
+    ...mealData,
+    estimatedMealCost
+  });
+
   const savedMeal = await meal.save();
 
   return {
@@ -86,25 +105,38 @@ async function createMeal(mealData) {
 }
 
 async function updateMeal(mealId, updateData) {
-  const updatedMeal = await Meal.findByIdAndUpdate(
-    mealId,
-    updateData,
-    {
-      new: true,
-      runValidators: true
-    }
-  );
+  const existingMeal = await Meal.findById(mealId);
 
-  if (!updatedMeal) {
+  if (!existingMeal) {
     const error = new Error('Meal not found');
     error.statusCode = 404;
     error.code = 'MEAL_NOT_FOUND';
     throw error;
   }
 
+  const ingredientsForCost =
+    updateData.ingredients !== undefined
+      ? updateData.ingredients
+      : existingMeal.ingredients;
+
+  const estimatedMealCost = calculateEstimatedMealCost(ingredientsForCost);
+
+  const updatedMeal = await Meal.findByIdAndUpdate(
+    mealId,
+    {
+      ...updateData,
+      estimatedMealCost
+    },
+    {
+      new: true,
+      runValidators: true
+    }
+  );
+
   return {
     data: {
       _id: updatedMeal._id,
+      estimatedMealCost: updatedMeal.estimatedMealCost,
       updatedAt: updatedMeal.updatedAt
     },
     message: 'Meal updated successfully.'

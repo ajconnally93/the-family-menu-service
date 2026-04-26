@@ -1,3 +1,5 @@
+// NOTE: create/update logic is delegated to mealService
+
 const mongoose = require('mongoose');
 const mealService = require('../services/mealService');
 
