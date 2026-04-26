@@ -20,7 +20,7 @@
       <div class="nav-links">
         <a href="/meal-library.html" class="nav-link-custom">Meal Library</a>
         <a href="/my-meal-plan.html" class="nav-link-custom">My Meal Plan</a>
-        <span class="active">My Grocery List</span>
+        <a href="/grocery-list.html" class="nav-link-custom active">My Grocery List</a>
 
         <span id="auth-section"></span>
       </div>
@@ -43,23 +43,17 @@
       </div>
     </div>
 
-    <!-- generate grocery list button - deprecated, added functionality to generate the list automatically as meals are added or removed -->
-    <!-- <div class="mb-4">
-      <button id="generateGroceryListBtn" class="btn btn-primary">
-        Generate Grocery List
-      </button>
-    </div> -->
-
     <div id="groceryListContainer" class="row g-4">
       <div class="col-12">
         <div class="feature-card">
           <h3>No grocery list generated yet.</h3>
-          <p>Click “Generate Grocery List” to create a consolidated list from your meal plan.</p>
+          <p>Your grocery list will automatically update as you add or remove meals from your meal plan.</p>
         </div>
       </div>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/groceryList.js"></script>
 </body>
 </html>
