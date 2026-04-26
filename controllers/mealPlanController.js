@@ -1,6 +1,30 @@
 const mongoose = require('mongoose');
 const MealPlan = require('../models/MealPlan');
 const Meal = require('../models/Meal');
+const GroceryList = require('../models/GroceryList');
+const { generateGroceryList } = require('../services/groceryListService');
+
+const refreshGroceryListForMealPlan = async (planId) => {
+  const generatedList = await generateGroceryList(planId);
+
+  const groceryList = await GroceryList.findOneAndUpdate(
+    { mealPlanId: generatedList.mealPlanId },
+    {
+      mealPlanId: generatedList.mealPlanId,
+      userId: generatedList.userId,
+      items: generatedList.items,
+      estimatedTotalCost: generatedList.estimatedTotalCost,
+      generatedAt: new Date()
+    },
+    {
+      new: true,
+      upsert: true,
+      runValidators: true
+    }
+  );
+
+  return groceryList;
+};
 
 const getMealPlans = async (req, res) => {
   try {
@@ -285,8 +309,11 @@ const addMealToPlan = async (req, res) => {
       servingsOverride
     });
 
-    mealPlan.estimatedTotalCost += meal.estimatedMealCost;
+    await mealPlan.save();
 
+    const groceryList = await refreshGroceryListForMealPlan(mealPlan._id);
+
+    mealPlan.estimatedTotalCost = groceryList.estimatedTotalCost;
     await mealPlan.save();
 
     res.status(201).json({
@@ -295,8 +322,9 @@ const addMealToPlan = async (req, res) => {
         mealCount: mealPlan.meals.length,
         estimatedTotalCost: mealPlan.estimatedTotalCost
       },
-      message: 'Meal added to meal plan successfully.'
+      message: 'Meal added to meal plan and grocery list updated successfully.'
     });
+
   } catch (error) {
     res.status(500).json({
       error: {
@@ -355,17 +383,21 @@ const removeMealFromPlan = async (req, res) => {
 
     const meal = await Meal.findById(mealId);
 
-    if (meal) {
-      mealPlan.estimatedTotalCost -= meal.estimatedMealCost;
-
-      if (mealPlan.estimatedTotalCost < 0) {
-        mealPlan.estimatedTotalCost = 0;
-      }
-    }
-
     mealPlan.meals.splice(mealIndex, 1);
 
     await mealPlan.save();
+
+    if (mealPlan.meals.length > 0) {
+      const groceryList = await refreshGroceryListForMealPlan(mealPlan._id);
+
+      mealPlan.estimatedTotalCost = groceryList.estimatedTotalCost;
+      await mealPlan.save();
+    } else {
+      mealPlan.estimatedTotalCost = 0;
+      await mealPlan.save();
+
+      await GroceryList.deleteMany({ mealPlanId: mealPlan._id });
+    }
 
     res.status(200).json({
       data: {
@@ -373,8 +405,9 @@ const removeMealFromPlan = async (req, res) => {
         mealCount: mealPlan.meals.length,
         estimatedTotalCost: mealPlan.estimatedTotalCost
       },
-      message: 'Meal removed from meal plan successfully.'
+      message: 'Meal removed from meal plan and grocery list updated successfully.'
     });
+
   } catch (error) {
     res.status(500).json({
       error: {
@@ -385,11 +418,114 @@ const removeMealFromPlan = async (req, res) => {
   }
 };
 
+// const generateGroceryList = async (req, res) => {
+//   try {
+//     const { planId } = req.params;
+
+//     if (!mongoose.Types.ObjectId.isValid(planId)) {
+//       return res.status(400).json({
+//         error: {
+//           code: 'INVALID_PLAN_ID',
+//           message: 'planId must be a valid ObjectId.'
+//         }
+//       });
+//     }
+
+//     const mealPlan = await MealPlan.findById(planId).populate({
+//       path: 'meals.mealId',
+//       select: 'title ingredients'
+//     });
+
+//     if (!mealPlan) {
+//       return res.status(404).json({
+//         error: {
+//           code: 'MEAL_PLAN_NOT_FOUND',
+//           message: 'No meal plan exists for the supplied planId.'
+//         }
+//       });
+//     }
+
+//     if (!mealPlan.meals.length) {
+//       return res.status(422).json({
+//         error: {
+//           code: 'EMPTY_MEAL_PLAN',
+//           message: 'Cannot generate a grocery list for an empty meal plan.'
+//         }
+//       });
+//     }
+
+//     const groceryItemMap = new Map();
+
+//     mealPlan.meals.forEach((mealEntry) => {
+//       const meal = mealEntry.mealId;
+
+//       if (!meal || !meal.ingredients) {
+//         return;
+//       }
+
+//       meal.ingredients.forEach((ingredient) => {
+//         const ingredientKey = `${ingredient.ingredientId}-${ingredient.unit}`;
+
+//         if (!groceryItemMap.has(ingredientKey)) {
+//           groceryItemMap.set(ingredientKey, {
+//             ingredientId: ingredient.ingredientId,
+//             name: ingredient.name,
+//             totalQuantity: 0,
+//             unit: ingredient.unit,
+//             estimatedLineCost: 0,
+//             sourceMealIds: []
+//           });
+//         }
+
+//         const groceryItem = groceryItemMap.get(ingredientKey);
+
+//         groceryItem.totalQuantity += ingredient.quantity;
+//         groceryItem.estimatedLineCost +=
+//           ingredient.quantity * ingredient.estimatedUnitCost;
+
+//         groceryItem.sourceMealIds.push(meal._id);
+//       });
+//     });
+
+//     const items = Array.from(groceryItemMap.values()).map((item) => ({
+//       ...item,
+//       totalQuantity: Number(item.totalQuantity.toFixed(2)),
+//       estimatedLineCost: Number(item.estimatedLineCost.toFixed(2))
+//     }));
+
+//     const estimatedTotalCost = Number(
+//       items
+//         .reduce((total, item) => total + item.estimatedLineCost, 0)
+//         .toFixed(2)
+//     );
+
+//     const groceryList = await GroceryList.create({
+//       mealPlanId: mealPlan._id,
+//       userId: mealPlan.userId,
+//       items,
+//       estimatedTotalCost
+//     });
+
+//     res.status(201).json({
+//       data: groceryList,
+//       message: 'Grocery list generated successfully.'
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       error: {
+//         code: 'SERVER_ERROR',
+//         message: error.message
+//       }
+//     });
+//   }
+// };
+
 module.exports = {
   getMealPlans,
   createMealPlan,
   getMealPlanById,
   updateMealPlan,
   addMealToPlan,
-  removeMealFromPlan
+  removeMealFromPlan,
+  // generateGroceryList
 };
