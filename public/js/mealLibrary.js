@@ -7,6 +7,10 @@ async function loadMeals(tag = '') {
     const response = await fetch(url);
     const result = await response.json();
 
+    if (!response.ok) {
+      throw new Error(result.error?.message || 'Failed to load meals.');
+    }
+
     renderMeals(result.data || []);
   } catch (error) {
     console.error('Error loading meals:', error);
@@ -25,7 +29,7 @@ function renderMeals(meals) {
           <div class="meal-body">
             <div class="meal-content">
               <h3>No meals found.</h3>
-              <p>Try selecting a different category or view all meals.</p>
+              <p>Try selecting a different tag or view all meals.</p>
             </div>
           </div>
         </div>
@@ -45,23 +49,26 @@ function renderMeals(meals) {
     const formattedCost =
       typeof meal.estimatedMealCost === 'number'
         ? meal.estimatedMealCost.toFixed(2)
-        : meal.estimatedMealCost;
+        : meal.estimatedMealCost || '0.00';
 
-        // using meal._id since it's working with raw JS data, Mongoose populates using _id even though it's refactored to .mealId based on the Design doc
+    // using meal._id since it's working with raw JS data;
+    // Mongoose uses _id even though the design doc refers to mealId.
     col.innerHTML = `
       <div class="meal-card h-100">
         <div class="meal-img">Meal Image</div>
         <div class="meal-body">
           <div class="meal-content">
-            <h3>${meal.title}</h3>
-            <p>${meal.description}</p>
+            <h3>${meal.title || 'Untitled Meal'}</h3>
+            <p>${meal.description || 'No description available.'}</p>
           </div>
 
           <div class="meal-footer">
             <p class="price">Estimated cost: $${formattedCost}</p>
+
             <div class="meal-tags">
               ${tagsHtml}
             </div>
+
             <div class="meal-actions">
               <button 
                 class="btn btn-primary add-to-plan-btn"
@@ -70,17 +77,18 @@ function renderMeals(meals) {
               >
                 Add to Meal Plan
               </button>
+
               <button
                 class="btn btn-outline-custom view-recipe-btn"
                 type="button"
-                data-title="${meal.title || 'Untitled Meal'}"
-                data-cost="${typeof meal.estimatedMealCost === 'number' ? meal.estimatedMealCost.toFixed(2) : '0.00'}"
-                data-description="${meal.description || 'No description available.'}"
-                data-ingredients='${JSON.stringify(meal.ingredients || [])}'
-                data-instructions='${JSON.stringify(meal.instructions || [])}'
+                data-title="${escapeHtml(meal.title || 'Untitled Meal')}"
+                data-cost="${formattedCost}"
+                data-description="${escapeHtml(meal.description || 'No description available.')}"
+                data-ingredients="${escapeHtml(JSON.stringify(meal.ingredients || []))}"
+                data-instructions="${escapeHtml(JSON.stringify(meal.instructions || []))}"
               >
                 View Recipe
-            </button>
+              </button>
             </div>
           </div>
         </div>
@@ -118,7 +126,7 @@ function setupTagFilters() {
       chips.forEach((c) => c.classList.remove('active'));
       chip.classList.add('active');
 
-      const selectedTag = chip.dataset.tag;
+      const selectedTag = chip.dataset.tag || '';
       loadMeals(selectedTag);
     });
   });
@@ -193,6 +201,7 @@ function setupAddToPlanButtons() {
         }
 
         button.textContent = 'Added!';
+
         setTimeout(() => {
           button.textContent = originalText;
           button.disabled = false;
@@ -289,6 +298,15 @@ function populateRecipeModal({ title, cost, description, ingredients, instructio
   } else {
     instructionsElement.innerHTML = '<li>No instructions available.</li>';
   }
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
 }
 
 document.addEventListener('DOMContentLoaded', () => {

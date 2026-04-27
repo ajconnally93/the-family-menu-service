@@ -53,13 +53,43 @@
       </p>
     </div>
 
-    <div class="filter-bar mb-4">
-      <button class="chip active" data-tag="">All Meals</button>
-      <button class="chip" data-tag="kid-friendly">Kid-Friendly</button>
-      <button class="chip" data-tag="quick">Quick</button>
-      <button class="chip" data-tag="updated">Updated</button>
-      <button class="chip" data-tag="test">Test</button>
+  <div class="filter-bar mb-4">
+    <button class="chip active" data-tag="">All Meals</button>
+
+    <div class="filter-group">
+      <span class="filter-group-label">Dietary</span>
+      <button class="chip" data-tag="vegetarian">Vegetarian</button>
+      <button class="chip" data-tag="vegan">Vegan</button>
+      <button class="chip" data-tag="keto-friendly">Keto-Friendly</button>
     </div>
+
+    <div class="filter-group">
+      <span class="filter-group-label">Convenience</span>
+      <button class="chip" data-tag="under-20-minutes">Under 20 Minutes</button>
+      <button class="chip" data-tag="one-pot">One-Pot</button>
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-group-label">Nutrition</span>
+      <button class="chip" data-tag="high-protein">High Protein</button>
+      <button class="chip" data-tag="low-calorie">Low Calorie</button>
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-group-label">Cuisine</span>
+      <button class="chip" data-tag="mexican">Mexican</button>
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-group-label">Budget</span>
+      <button class="chip" data-tag="under-10">Under $10</button>
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-group-label">Family</span>
+      <button class="chip" data-tag="kid-friendly">Kid-Friendly</button>
+    </div>
+  </div>
 
     <div id="mealContainer" class="row g-4"></div>
 

@@ -316,3 +316,47 @@ h3 {
 .recipe-list li + li {
   margin-top: 0.5rem;
 }
+
+/* Tag Grouping */
+
+.filter-bar {
+  align-items: flex-end;
+}
+
+/* Each group container */
+.filter-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-left: 0.75rem;
+  margin-left: 0.25rem;
+  border-left: 1px solid var(--border);
+}
+
+/* Remove border from first group after "All Meals" */
+.filter-bar > .filter-group:first-of-type {
+  border-left: none;
+  padding-left: 0.25rem;
+}
+
+/* Group labels (Dietary etc) */
+.filter-group-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 0.25rem;
+  opacity: 0.8;
+}
+
+.filter-group .chip {
+  font-size: 0.9rem;
+}
+
+.filter-group {
+  background: rgba(255, 255, 255, 0.6);
+  padding: 0.4rem 0.6rem;
+  border-radius: 10px;
+}
