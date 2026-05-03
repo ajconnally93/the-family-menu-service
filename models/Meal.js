@@ -54,6 +54,11 @@ const mealSchema = new mongoose.Schema(
       default: 0,
       min: 0
     },
+    cookTimeMinutes: {
+      type: Number,
+      required: true,
+      min: 0
+    },
     ingredients: {
       type: [ingredientSchema],
       required: true,

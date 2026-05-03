@@ -18,6 +18,31 @@ async function loadMeals(tag = '') {
   }
 }
 
+function formatCookTime(minutes) {
+  if (minutes === undefined || minutes === null) {
+    return '';
+  }
+
+  const totalMinutes = Number(minutes);
+
+  if (Number.isNaN(totalMinutes)) {
+    return '';
+  }
+
+  const hours = Math.floor(totalMinutes / 60);
+  const remainingMinutes = totalMinutes % 60;
+
+  if (hours && remainingMinutes) {
+    return `${hours} hr ${remainingMinutes} mins`;
+  }
+
+  if (hours) {
+    return `${hours} hr`;
+  }
+
+  return `${remainingMinutes} mins`;
+}
+
 function renderMeals(meals) {
   const container = document.getElementById('mealContainer');
   container.innerHTML = '';
@@ -51,6 +76,8 @@ function renderMeals(meals) {
         ? meal.estimatedMealCost.toFixed(2)
         : meal.estimatedMealCost || '0.00';
 
+    const formattedCookTime = formatCookTime(meal.cookTimeMinutes);
+
     // using meal._id since it's working with raw JS data;
     // Mongoose uses _id even though the design doc refers to mealId.
     col.innerHTML = `
@@ -59,6 +86,7 @@ function renderMeals(meals) {
         <div class="meal-body">
           <div class="meal-content">
             <h3>${meal.title || 'Untitled Meal'}</h3>
+            ${formattedCookTime ? `<p class="meal-time">${formattedCookTime}</p>` : ''}
             <p>${meal.description || 'No description available.'}</p>
           </div>
 
