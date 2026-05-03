@@ -182,10 +182,30 @@ async function updateMeal(mealId, updateData) {
   };
 }
 
+async function deleteMeal(mealId) {
+  const deletedMeal = await Meal.findByIdAndDelete(mealId);
+
+  if (!deletedMeal) {
+    const error = new Error('Meal not found');
+    error.statusCode = 404;
+    error.code = 'MEAL_NOT_FOUND';
+    throw error;
+  }
+
+  return {
+    data: {
+      _id: deletedMeal._id,
+      title: deletedMeal.title
+    },
+    message: 'Meal deleted successfully.'
+  };
+}
+
 module.exports = {
   getAllMeals,
   getMealById,
   createMeal,
   createManyMeals,
-  updateMeal
+  updateMeal,
+  deleteMeal
 };

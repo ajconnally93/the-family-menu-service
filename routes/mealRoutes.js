@@ -13,6 +13,7 @@ router.post('/bulk', mealController.createManyMeals);
 // dynamic routes
 router.get('/:mealId', mealController.getMeal);
 router.put('/:mealId', mealController.updateMeal);
+router.delete('/:mealId', mealController.deleteMeal);
 
 
 module.exports = router;

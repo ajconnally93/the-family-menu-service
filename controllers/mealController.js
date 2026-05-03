@@ -104,10 +104,28 @@ async function updateMeal(req, res) {
   }
 }
 
+async function deleteMeal(req, res) {
+  try {
+    const { mealId } = req.params;
+
+    const result = await mealService.deleteMeal(mealId);
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      error: {
+        code: error.code || 'INTERNAL_SERVER_ERROR',
+        message: error.message
+      }
+    });
+  }
+}
+
 module.exports = {
   getMeals,
   getMeal,
   createMeal,
   createManyMeals,
-  updateMeal
+  updateMeal,
+  deleteMeal
 };
