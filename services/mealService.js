@@ -13,6 +13,10 @@ function calculateEstimatedMealCost(ingredients = []) {
   );
 }
 
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function buildMealQuery({ search, tag }) {
   const query = {};
     // Built functionality for searching if I decided to implement it later
@@ -26,7 +30,8 @@ function buildMealQuery({ search, tag }) {
   }
 
   if (tag) {
-    query.tags = { $regex: `^${tag}$`, $options: 'i' };
+    const escapedTag = escapeRegex(tag.trim());
+    query.tags = { $regex: `^${escapedTag}$`, $options: 'i' };
   }
 
   return query;
