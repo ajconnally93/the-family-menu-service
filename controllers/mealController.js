@@ -72,6 +72,21 @@ async function createMeal(req, res) {
   }
 }
 
+async function createManyMeals(req, res) {
+  try {
+    const result = await mealService.createManyMeals(req.body);
+
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(error.statusCode || 422).json({
+      error: {
+        code: error.code || 'VALIDATION_ERROR',
+        message: error.message
+      }
+    });
+  }
+}
+
 async function updateMeal(req, res) {
   try {
     const { mealId } = req.params;
@@ -93,5 +108,6 @@ module.exports = {
   getMeals,
   getMeal,
   createMeal,
+  createManyMeals,
   updateMeal
 };

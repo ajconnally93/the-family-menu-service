@@ -109,6 +109,40 @@ async function createMeal(mealData) {
   };
 }
 
+async function createManyMeals(mealsData) {
+  if (!Array.isArray(mealsData)) {
+    const error = new Error('Request body must be an array of meals.');
+    error.statusCode = 400;
+    error.code = 'INVALID_REQUEST_BODY';
+    throw error;
+  }
+
+  if (!mealsData.length) {
+    const error = new Error('At least one meal is required.');
+    error.statusCode = 400;
+    error.code = 'EMPTY_MEAL_LIST';
+    throw error;
+  }
+
+  const mealsWithCosts = mealsData.map((mealData) => ({
+    ...mealData,
+    estimatedMealCost: calculateEstimatedMealCost(mealData.ingredients)
+  }));
+
+  const savedMeals = await Meal.insertMany(mealsWithCosts, {
+    ordered: true,
+    runValidators: true
+  });
+
+  return {
+    data: savedMeals,
+    meta: {
+      count: savedMeals.length
+    },
+    message: 'Meals created successfully.'
+  };
+}
+
 async function updateMeal(mealId, updateData) {
   const existingMeal = await Meal.findById(mealId);
 
@@ -152,5 +186,6 @@ module.exports = {
   getAllMeals,
   getMealById,
   createMeal,
+  createManyMeals,
   updateMeal
 };
