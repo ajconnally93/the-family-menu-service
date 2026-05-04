@@ -5,15 +5,23 @@ const mealController = require('../controllers/mealController');
 
 // base routes
 router.get('/', mealController.getMeals);
-router.post('/', mealController.createMeal);
+
+// RE-ADD ONCE AUTH IS FIXED
+// router.post('/', mealController.createMeal);
+
+
 
 // static routes
 router.post('/bulk', mealController.createManyMeals);
 
+
+
 // dynamic routes
 router.get('/:mealId', mealController.getMeal);
-router.put('/:mealId', mealController.updateMeal);
-router.delete('/:mealId', mealController.deleteMeal);
+
+// RE-ADD ONCE AUTH IS FIXED
+// router.put('/:mealId', mealController.updateMeal);
+// router.delete('/:mealId', mealController.deleteMeal);
 
 
 module.exports = router;
