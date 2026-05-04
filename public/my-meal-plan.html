@@ -54,29 +54,46 @@
 
     <div id="mealPlanContainer" class="row g-4"></div>
 
-    <div class="modal fade" id="recipeModal" tabindex="-1">
-      <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content recipe-modal-content">
-          <div class="modal-header">
-            <h2 class="modal-title fs-4" id="recipeModalTitle">Recipe</h2>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="modal fade" id="recipeModal" tabindex="-1" aria-labelledby="recipeModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content recipe-modal">
+          <div class="modal-header recipe-modal-header">
+            <div>
+              <p class="recipe-modal-eyebrow mb-1">Recipe Card</p>
+              <h2 class="modal-title" id="recipeModalTitle">Meal Title</h2>
+            </div>
+            <button type="button" class="btn-close recipe-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
-          <div class="modal-body">
-            <p><strong>Estimated Cost:</strong> <span id="recipeModalCost">$0.00</span></p>
+          <div class="modal-body recipe-modal-body">
+            <div class="recipe-summary-card">
+              <p id="recipeModalDescription" class="recipe-description mb-3"></p>
 
-            <h4>Description</h4>
-            <p id="recipeModalDescription">No description available.</p>
+              <div class="recipe-cost-pill">
+                <span>Estimated cost</span>
+                <strong id="recipeModalCost">$0.00</strong>
+              </div>
+            </div>
 
-            <h4>Ingredients</h4>
-            <ul id="recipeModalIngredients">
-              <li>No ingredients available.</li>
-            </ul>
+            <div class="row g-4 mt-1">
+              <div class="col-md-5">
+                <section class="recipe-section">
+                  <h3>Ingredients</h3>
+                  <ul id="recipeModalIngredients" class="recipe-ingredient-list"></ul>
+                </section>
+              </div>
 
-            <h4>Instructions</h4>
-            <ol id="recipeModalInstructions">
-              <li>No instructions available.</li>
-            </ol>
+              <div class="col-md-7">
+                <section class="recipe-section">
+                  <h3>Instructions</h3>
+                  <ol id="recipeModalInstructions" class="recipe-step-list"></ol>
+                </section>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer recipe-modal-footer">
+            <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Close</button>
           </div>
         </div>
       </div>

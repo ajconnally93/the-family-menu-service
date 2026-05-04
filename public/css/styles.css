@@ -432,3 +432,135 @@ html {
   color: var(--text-soft);
   text-decoration: line-through;
 }
+
+.recipe-modal {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg);
+  box-shadow: var(--shadow-md);
+}
+
+.recipe-modal-header {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  padding: 1.5rem;
+  border-bottom: none;
+}
+
+.recipe-modal-header h2 {
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+.recipe-modal-eyebrow {
+  color: var(--secondary);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: .78rem;
+}
+
+.recipe-close {
+  filter: brightness(0) invert(1);
+  opacity: .9;
+}
+
+.recipe-modal-body {
+  padding: 1.5rem;
+}
+
+.recipe-summary-card,
+.recipe-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem;
+}
+
+.recipe-description {
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+
+.recipe-cost-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .65rem;
+  background: var(--secondary);
+  border: 1px solid #eadfc9;
+  color: var(--primary-dark);
+  border-radius: 999px;
+  padding: .55rem .85rem;
+}
+
+.recipe-cost-pill strong {
+  color: var(--accent);
+  font-size: 1.1rem;
+}
+
+.recipe-section h3 {
+  font-family: var(--font-heading);
+  color: var(--text);
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.recipe-ingredient-list,
+.recipe-step-list {
+  display: grid;
+  gap: .75rem;
+  margin: 0;
+  padding: 0;
+}
+
+.recipe-ingredient-list {
+  list-style: none;
+}
+
+.recipe-ingredient-list li {
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: .75rem .9rem;
+  color: var(--text);
+}
+
+.recipe-step-list {
+  list-style: none;
+  counter-reset: recipe-step;
+}
+
+.recipe-step-list li {
+  counter-increment: recipe-step;
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: .75rem;
+  align-items: start;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: .85rem;
+  color: var(--text-soft);
+}
+
+.recipe-step-list li::before {
+  content: counter(recipe-step);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+
+.recipe-modal-footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 1rem 1.5rem;
+}
