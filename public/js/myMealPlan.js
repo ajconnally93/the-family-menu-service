@@ -126,7 +126,13 @@ function renderMealPlan(mealPlan) {
 
     col.innerHTML = `
       <div class="meal-card h-100">
-        <div class="meal-img">Meal Image</div>
+        <div class="meal-img">
+          ${
+            meal.imageUrl
+              ? `<img src="${meal.imageUrl}" alt="${escapeHtml(meal.title || 'Meal image')}" />`
+              : 'Meal Image'
+          }
+        </div>
         <div class="meal-body">
           <div class="meal-content">
             <h3 class="mb-1">
@@ -345,6 +351,15 @@ function populateRecipeModal({ title, cost, description, ingredients, instructio
   } else {
     instructionsElement.innerHTML = '<li>No instructions available.</li>';
   }
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
 }
 
 document.addEventListener('DOMContentLoaded', () => {

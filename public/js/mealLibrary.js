@@ -125,7 +125,13 @@ function renderMeals(meals) {
 
     col.innerHTML = `
       <div class="meal-card h-100">
-        <div class="meal-img">Meal Image</div>
+        <div class="meal-img">
+          ${
+            meal.imageUrl
+              ? `<img src="${meal.imageUrl}" alt="${escapeHtml(meal.title || 'Meal image')}" />`
+              : 'Meal Image'
+          }
+        </div>
         <div class="meal-body">
           <div class="meal-content">
             <h3 class="mb-1">${meal.title || 'Untitled Meal'}</h3>
