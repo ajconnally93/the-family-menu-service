@@ -1,9 +1,22 @@
 const currentUser = JSON.parse(localStorage.getItem('currentUser'));
 const USER_ID = currentUser?._id;
 
-async function loadMeals(tag = '') {
+let currentSearch = '';
+let currentTag = '';
+
+async function loadMeals() {
   try {
-    const url = tag ? `/api/meals?tag=${encodeURIComponent(tag)}` : '/api/meals';
+    const params = new URLSearchParams();
+
+    if (currentTag) {
+      params.append('tag', currentTag);
+    }
+
+    if (currentSearch) {
+      params.append('search', currentSearch);
+    }
+
+    const url = `/api/meals?${params.toString()}`;
     const response = await fetch(url);
     const result = await response.json();
 
@@ -54,7 +67,7 @@ function renderMeals(meals) {
           <div class="meal-body">
             <div class="meal-content">
               <h3>No meals found.</h3>
-              <p>Try selecting a different tag or view all meals.</p>
+              <p>Try selecting a different tag or search.</p>
             </div>
           </div>
         </div>
@@ -89,9 +102,6 @@ function renderMeals(meals) {
           </div>
 
           <div class="meal-footer">
-
-            
-
             <div class="meal-actions">
               <button 
                 class="btn btn-primary add-to-plan-btn"
@@ -149,9 +159,20 @@ function setupTagFilters() {
       chips.forEach((c) => c.classList.remove('active'));
       chip.classList.add('active');
 
-      const selectedTag = chip.dataset.tag || '';
-      loadMeals(selectedTag);
+      currentTag = chip.dataset.tag || '';
+      loadMeals();
     });
+  });
+}
+
+function setupSearch() {
+  const input = document.getElementById('mealSearchInput');
+
+  if (!input) return;
+
+  input.addEventListener('input', () => {
+    currentSearch = input.value.trim();
+    loadMeals();
   });
 }
 
@@ -220,7 +241,7 @@ function setupAddToPlanButtons() {
         const result = await response.json();
 
         if (!response.ok) {
-          throw new Error(result.error?.message || `Failed to add meal. Status: ${response.status}`);
+          throw new Error(result.error?.message || `Failed to add meal.`);
         }
 
         button.textContent = 'Added!';
@@ -233,7 +254,7 @@ function setupAddToPlanButtons() {
         console.error('Error adding meal:', error);
         button.textContent = originalText;
         button.disabled = false;
-        alert(error.message || 'Unable to add meal. Please try again.');
+        alert(error.message || 'Unable to add meal.');
       }
     });
   });
@@ -243,9 +264,7 @@ function setupViewRecipeButtons() {
   const buttons = document.querySelectorAll('.view-recipe-btn');
   const modalElement = document.getElementById('recipeModal');
 
-  if (!modalElement) {
-    return;
-  }
+  if (!modalElement) return;
 
   const recipeModal = new bootstrap.Modal(modalElement);
 
@@ -260,67 +279,41 @@ function setupViewRecipeButtons() {
 
       try {
         ingredients = JSON.parse(button.dataset.ingredients || '[]');
-      } catch (error) {
-        ingredients = [];
-      }
-
-      try {
         instructions = JSON.parse(button.dataset.instructions || '[]');
-      } catch (error) {
-        instructions = [];
-      }
+      } catch {}
 
-      populateRecipeModal({
-        title,
-        cost,
-        description,
-        ingredients,
-        instructions
-      });
-
+      populateRecipeModal({ title, cost, description, ingredients, instructions });
       recipeModal.show();
     });
   });
 }
 
 function populateRecipeModal({ title, cost, description, ingredients, instructions }) {
-  const titleElement = document.getElementById('recipeModalTitle');
-  const costElement = document.getElementById('recipeModalCost');
-  const descriptionElement = document.getElementById('recipeModalDescription');
+  document.getElementById('recipeModalTitle').textContent = title;
+  document.getElementById('recipeModalCost').textContent = `$${cost}`;
+  document.getElementById('recipeModalDescription').textContent = description;
+
   const ingredientsElement = document.getElementById('recipeModalIngredients');
   const instructionsElement = document.getElementById('recipeModalInstructions');
-
-  titleElement.textContent = title;
-  costElement.textContent = `$${cost}`;
-  descriptionElement.textContent = description;
 
   ingredientsElement.innerHTML = '';
   instructionsElement.innerHTML = '';
 
-  if (ingredients.length) {
-    ingredients.forEach((ingredient) => {
-      const li = document.createElement('li');
+  ingredients.length
+    ? ingredients.forEach(i => {
+        const li = document.createElement('li');
+        li.textContent = `${i.quantity ?? ''} ${i.unit ?? ''} ${i.name ?? ''}`.trim();
+        ingredientsElement.appendChild(li);
+      })
+    : ingredientsElement.innerHTML = '<li>No ingredients available.</li>';
 
-      const quantity = ingredient.quantity ?? '';
-      const unit = ingredient.unit ?? '';
-      const name = ingredient.name ?? 'Unnamed ingredient';
-
-      li.textContent = `${quantity} ${unit} ${name}`.replace(/\s+/g, ' ').trim();
-      ingredientsElement.appendChild(li);
-    });
-  } else {
-    ingredientsElement.innerHTML = '<li>No ingredients available.</li>';
-  }
-
-  if (instructions.length) {
-    instructions.forEach((step) => {
-      const li = document.createElement('li');
-      li.textContent = step;
-      instructionsElement.appendChild(li);
-    });
-  } else {
-    instructionsElement.innerHTML = '<li>No instructions available.</li>';
-  }
+  instructions.length
+    ? instructions.forEach(step => {
+        const li = document.createElement('li');
+        li.textContent = step;
+        instructionsElement.appendChild(li);
+      })
+    : instructionsElement.innerHTML = '<li>No instructions available.</li>';
 }
 
 function escapeHtml(value) {
@@ -334,5 +327,6 @@ function escapeHtml(value) {
 
 document.addEventListener('DOMContentLoaded', () => {
   setupTagFilters();
+  setupSearch();
   loadMeals();
 });

@@ -401,3 +401,10 @@ bit-notification-bar-root * {
   color: var(--text);
   font-weight: 500;
 }
+
+.meal-search input {
+  border-radius: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+}
