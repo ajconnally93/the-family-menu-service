@@ -3,6 +3,41 @@ const USER_ID = currentUser?._id;
 
 let currentSearch = '';
 let currentTag = '';
+let mealIdsInPlan = [];
+
+async function loadCurrentMealPlanMealIds() {
+  if (!USER_ID) {
+    mealIdsInPlan = [];
+    return;
+  }
+
+  try {
+    const planResponse = await fetch(
+      `/api/meal-plans?userId=${encodeURIComponent(USER_ID)}&status=draft`
+    );
+    const planResult = await planResponse.json();
+
+    const rawData = planResult.data;
+    const mealPlan = Array.isArray(rawData) ? rawData[0] : rawData;
+
+    if (!mealPlan || !mealPlan._id) {
+      mealIdsInPlan = [];
+      return;
+    }
+
+    const populatedResponse = await fetch(
+      `/api/meal-plans/${mealPlan._id}?includeMeals=true`
+    );
+    const populatedResult = await populatedResponse.json();
+
+    mealIdsInPlan = (populatedResult.data?.meals || []).map((entry) =>
+      String(entry.mealId)
+    );
+  } catch (error) {
+    console.error('Error loading current meal plan meals:', error);
+    mealIdsInPlan = [];
+  }
+}
 
 async function loadMeals() {
   try {
@@ -86,6 +121,7 @@ function renderMeals(meals) {
         : meal.estimatedMealCost || '0.00';
 
     const formattedCookTime = formatCookTime(meal.cookTimeMinutes);
+    const isInPlan = mealIdsInPlan.includes(String(meal._id));
 
     col.innerHTML = `
       <div class="meal-card h-100">
@@ -111,11 +147,11 @@ function renderMeals(meals) {
           <div class="meal-footer">
             <div class="meal-actions">
               <button 
-                class="btn btn-primary add-to-plan-btn"
+                class="btn ${isInPlan ? 'btn-success' : 'btn-primary'} add-to-plan-btn"
                 type="button"
                 data-meal-id="${meal._id}"
               >
-                Add to Meal Plan
+                ${isInPlan ? '✓ Added · Add again?' : 'Add to Meal Plan'}
               </button>
 
               <button
@@ -272,12 +308,18 @@ function setupAddToPlanButtons() {
           throw new Error(result.error?.message || `Failed to add meal.`);
         }
 
+        // add to local state
+        mealIdsInPlan.push(String(mealId));
+
         button.textContent = 'Added!';
 
         setTimeout(() => {
-          button.textContent = originalText;
+          button.textContent = '✓ Added · Add again?';
+          button.classList.remove('btn-primary');
+          button.classList.add('btn-success');
           button.disabled = false;
-        }, 1000);
+        }, 800);
+
       } catch (error) {
         console.error('Error adding meal:', error);
         button.textContent = originalText;
@@ -353,8 +395,9 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   setupTagFilters();
   setupSearch();
+  await loadCurrentMealPlanMealIds();
   loadMeals();
 });

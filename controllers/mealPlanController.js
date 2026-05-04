@@ -292,19 +292,6 @@ const addMealToPlan = async (req, res) => {
       });
     }
 
-    const alreadyInPlan = mealPlan.meals.some(
-      (mealRef) => mealRef.mealId.toString() === mealId
-    );
-
-    if (alreadyInPlan) {
-      return res.status(409).json({
-        error: {
-          code: 'MEAL_ALREADY_IN_PLAN',
-          message: 'This meal has already been added to the selected meal plan.'
-        }
-      });
-    }
-
     mealPlan.meals.push({
       mealId,
       servingsOverride

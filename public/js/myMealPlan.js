@@ -91,7 +91,24 @@ function renderMealPlan(mealPlan) {
 
   totalCostElement.textContent = formattedTotal;
 
+  const groupedMeals = [];
+
   mealPlan.meals.forEach((entry) => {
+    const existingGroup = groupedMeals.find(
+      (group) => String(group.mealId) === String(entry.mealId)
+    );
+
+    if (existingGroup) {
+      existingGroup.quantity += 1;
+    } else {
+      groupedMeals.push({
+        ...entry,
+        quantity: 1
+      });
+    }
+  });
+
+  groupedMeals.forEach((entry) => {
     const meal = entry.meal || {};
 
     // testing why time to cook isn't displaying
@@ -112,11 +129,16 @@ function renderMealPlan(mealPlan) {
         <div class="meal-img">Meal Image</div>
         <div class="meal-body">
           <div class="meal-content">
-            <h3 class="mb-1">${meal.title || 'Untitled Meal'}</h3>
+            <h3 class="mb-1">
+              ${meal.title || 'Untitled Meal'}${entry.quantity > 1 ? ` ×${entry.quantity}` : ''}
+            </h3>
 
             <div class="meal-meta mb-3">
               ${formattedCookTime ? `<p class="meal-time mb-1">${formattedCookTime}</p>` : ''}
-              <p class="price mb-0">Estimated cost: $${formattedMealCost}</p>
+              <p class="price mb-0">
+                Estimated cost: $${formattedMealCost}
+                ${entry.quantity > 1 ? ` ×${entry.quantity}` : ''}
+              </p>
             </div>
 
             <p class="meal-description mb-2">
