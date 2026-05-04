@@ -408,3 +408,74 @@ bit-notification-bar-root * {
   border: 1px solid var(--border);
   background-color: var(--surface);
 }
+
+.meal-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.meal-meta {
+  line-height: 1.3;
+}
+
+.meal-description {
+  margin-top: 0;
+}
+
+.meal-meta p {
+  margin-bottom: 4px;
+}
+
+.meal-time {
+  font-size: 0.95rem;
+}
+
+.price {
+  font-size: 0.95rem;
+}
+
+.meal-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.meal-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.meal-content {
+  flex: 1;
+}
+
+.meal-footer {
+  margin-top: auto;
+}
+
+.meal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.meal-description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  line-clamp: 3;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.meal-description.expanded {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+}
+
+.read-more-btn {
+  font-size: 0.9rem;
+  color: var(--primary);
+  text-decoration: none;
+}

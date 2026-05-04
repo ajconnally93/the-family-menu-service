@@ -35,6 +35,31 @@ async function loadMealPlan() {
   }
 }
 
+function formatCookTime(minutes) {
+  if (minutes === undefined || minutes === null) {
+    return '';
+  }
+
+  const totalMinutes = Number(minutes);
+
+  if (Number.isNaN(totalMinutes)) {
+    return '';
+  }
+
+  const hours = Math.floor(totalMinutes / 60);
+  const remainingMinutes = totalMinutes % 60;
+
+  if (hours && remainingMinutes) {
+    return `${hours} hr ${remainingMinutes} mins`;
+  }
+
+  if (hours) {
+    return `${hours} hr`;
+  }
+
+  return `${remainingMinutes} mins`;
+}
+
 function renderMealPlan(mealPlan) {
   const container = document.getElementById('mealPlanContainer');
   const totalCostElement = document.getElementById('planTotalCost');
@@ -69,6 +94,9 @@ function renderMealPlan(mealPlan) {
   mealPlan.meals.forEach((entry) => {
     const meal = entry.meal || {};
 
+    // testing why time to cook isn't displaying
+    console.log('Meal from plan:', meal);
+
     const col = document.createElement('div');
     col.className = 'col-md-6 col-lg-3';
 
@@ -77,18 +105,30 @@ function renderMealPlan(mealPlan) {
         ? meal.estimatedMealCost.toFixed(2)
         : '0.00';
 
+    const formattedCookTime = formatCookTime(meal.cookTimeMinutes);
+
     col.innerHTML = `
       <div class="meal-card h-100">
         <div class="meal-img">Meal Image</div>
         <div class="meal-body">
           <div class="meal-content">
-            <h3>${meal.title || 'Untitled Meal'}</h3>
-            <p>${meal.description || 'No description available.'}</p>
+            <h3 class="mb-1">${meal.title || 'Untitled Meal'}</h3>
+
+            <div class="meal-meta mb-3">
+              ${formattedCookTime ? `<p class="meal-time mb-1">${formattedCookTime}</p>` : ''}
+              <p class="price mb-0">Estimated cost: $${formattedMealCost}</p>
+            </div>
+
+            <p class="meal-description mb-2">
+              ${meal.description || 'No description available.'}
+            </p>
+
+            <button class="read-more-btn btn btn-link p-0">
+              Read more
+            </button>
           </div>
 
           <div class="meal-footer">
-            <p class="price">Estimated cost: $${formattedMealCost}</p>
-            
             <div class="meal-actions">
               <button
                 class="btn btn-outline-danger remove-meal-btn"
@@ -98,11 +138,12 @@ function renderMealPlan(mealPlan) {
               >
                 Remove Meal
               </button>
+
               <button
                 class="btn btn-outline-custom view-recipe-btn"
                 type="button"
                 data-title="${meal.title || 'Untitled Meal'}"
-                data-cost="${typeof meal.estimatedMealCost === 'number' ? meal.estimatedMealCost.toFixed(2) : '0.00'}"
+                data-cost="${formattedMealCost}"
                 data-description="${meal.description || 'No description available.'}"
                 data-ingredients='${JSON.stringify(meal.ingredients || [])}'
                 data-instructions='${JSON.stringify(meal.instructions || [])}'
@@ -120,6 +161,7 @@ function renderMealPlan(mealPlan) {
 
   setupRemoveMealButtons();
   setupViewRecipeButtons();
+  setupReadMore();
 }
 
 function renderErrorState() {
@@ -140,6 +182,26 @@ function renderErrorState() {
       </div>
     </div>
   `;
+}
+
+function setupReadMore() {
+  const buttons = document.querySelectorAll('.read-more-btn');
+
+  buttons.forEach((btn) => {
+    const description = btn.previousElementSibling;
+
+    if (description.scrollHeight <= description.clientHeight) {
+      btn.style.display = 'none';
+      return;
+    }
+
+    btn.addEventListener('click', () => {
+      const isExpanded = description.classList.contains('expanded');
+
+      description.classList.toggle('expanded');
+      btn.textContent = isExpanded ? 'Read more' : 'Show less';
+    });
+  });
 }
 
 function setupRemoveMealButtons() {

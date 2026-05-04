@@ -140,7 +140,7 @@ const getMealPlanById = async (req, res) => {
     if (includeMeals === 'true') {
       const populatedPlan = await MealPlan.findById(planId).populate({
         path: 'meals.mealId',
-        select: 'title description ingredients instructions estimatedMealCost imageUrl'
+        select: 'title description ingredients instructions estimatedMealCost imageUrl cookTimeMinutes'
       });
 
       const reshapedMeals = populatedPlan.meals.map((mealEntry) => ({
@@ -152,7 +152,8 @@ const getMealPlanById = async (req, res) => {
           ingredients: mealEntry.mealId.ingredients,
           instructions: mealEntry.mealId.instructions,
           estimatedMealCost: mealEntry.mealId.estimatedMealCost,
-          imageUrl: mealEntry.mealId.imageUrl
+          imageUrl: mealEntry.mealId.imageUrl,
+          cookTimeMinutes: mealEntry.mealId.cookTimeMinutes
         }
       }));
 

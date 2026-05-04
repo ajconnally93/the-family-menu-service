@@ -92,13 +92,20 @@ function renderMeals(meals) {
         <div class="meal-img">Meal Image</div>
         <div class="meal-body">
           <div class="meal-content">
-            <h3>${meal.title || 'Untitled Meal'}</h3>
+            <h3 class="mb-1">${meal.title || 'Untitled Meal'}</h3>
 
-            ${formattedCookTime ? `<p class="meal-time mb-1">${formattedCookTime}</p>` : ''}
+            <div class="meal-meta mb-3">
+              ${formattedCookTime ? `<p class="meal-time mb-1">${formattedCookTime}</p>` : ''}
+              <p class="price mb-0">Estimated cost: $${formattedCost}</p>
+            </div>
 
-            <p class="price mb-2">Estimated cost: $${formattedCost}</p>
+            <p class="meal-description mb-2" data-full="${escapeHtml(meal.description || '')}">
+              ${meal.description || 'No description available.'}
+            </p>
 
-            <p>${meal.description || 'No description available.'}</p>
+            <button class="read-more-btn btn btn-link p-0">
+              Read more
+            </button>
           </div>
 
           <div class="meal-footer">
@@ -133,6 +140,27 @@ function renderMeals(meals) {
 
   setupAddToPlanButtons();
   setupViewRecipeButtons();
+  setupReadMore();
+}
+
+function setupReadMore() {
+  const buttons = document.querySelectorAll('.read-more-btn');
+
+  buttons.forEach((btn) => {
+    const description = btn.previousElementSibling;
+
+    if (description.scrollHeight <= description.clientHeight) {
+      btn.style.display = 'none';
+      return;
+    }
+
+    btn.addEventListener('click', () => {
+      const isExpanded = description.classList.contains('expanded');
+
+      description.classList.toggle('expanded');
+      btn.textContent = isExpanded ? 'Read more' : 'Show less';
+    });
+  });
 }
 
 function renderErrorState() {
