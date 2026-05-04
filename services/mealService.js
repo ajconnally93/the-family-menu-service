@@ -31,8 +31,19 @@ function buildMealQuery({ search, tag }) {
   }
 
   if (tag) {
-    const escapedTag = escapeRegex(tag.trim());
-    query.tags = { $regex: `^${escapedTag}$`, $options: 'i' };
+    const tags = Array.isArray(tag) ? tag : [tag];
+
+    const cleanedTags = tags
+      .map((value) => value.trim())
+      .filter(Boolean);
+
+    if (cleanedTags.length) {
+      query.tags = {
+        $all: cleanedTags.map(
+          (tagValue) => new RegExp(`^${escapeRegex(tagValue)}$`, 'i')
+        )
+      };
+    }
   }
 
   return query;

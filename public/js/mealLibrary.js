@@ -2,7 +2,7 @@ const currentUser = JSON.parse(localStorage.getItem('currentUser'));
 const USER_ID = currentUser?._id;
 
 let currentSearch = '';
-let currentTag = '';
+let currentTags = [];
 let mealIdsInPlan = [];
 
 async function loadCurrentMealPlanMealIds() {
@@ -43,9 +43,9 @@ async function loadMeals() {
   try {
     const params = new URLSearchParams();
 
-    if (currentTag) {
-      params.append('tag', currentTag);
-    }
+    currentTags.forEach((tag) => {
+      params.append('tag', tag);
+    });
 
     if (currentSearch) {
       params.append('search', currentSearch);
@@ -101,8 +101,8 @@ function renderMeals(meals) {
         <div class="meal-card">
           <div class="meal-body">
             <div class="meal-content">
-              <h3>No meals found.</h3>
-              <p>Try selecting a different tag or search.</p>
+              <h3>No meals match all selected tags.</h3>
+              <p>Try removing a tag.</p>
             </div>
           </div>
         </div>
@@ -223,13 +223,38 @@ function renderErrorState() {
 
 function setupTagFilters() {
   const chips = document.querySelectorAll('[data-tag]');
+  const allMealsChip = document.querySelector('[data-tag=""]');
 
   chips.forEach((chip) => {
     chip.addEventListener('click', () => {
-      chips.forEach((c) => c.classList.remove('active'));
-      chip.classList.add('active');
+      const selectedTag = chip.dataset.tag || '';
 
-      currentTag = chip.dataset.tag || '';
+      if (selectedTag === '') {
+        currentTags = [];
+
+        chips.forEach((c) => c.classList.remove('active'));
+        chip.classList.add('active');
+
+        loadMeals();
+        return;
+      }
+
+      if (allMealsChip) {
+        allMealsChip.classList.remove('active');
+      }
+
+      chip.classList.toggle('active');
+
+      if (currentTags.includes(selectedTag)) {
+        currentTags = currentTags.filter((tag) => tag !== selectedTag);
+      } else {
+        currentTags.push(selectedTag);
+      }
+
+      if (!currentTags.length && allMealsChip) {
+        allMealsChip.classList.add('active');
+      }
+
       loadMeals();
     });
   });
