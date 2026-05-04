@@ -2,30 +2,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const currentUser = JSON.parse(localStorage.getItem('currentUser'));
   const USER_ID = currentUser?._id;
 
-  const authSection = document.getElementById('auth-section');
   const groceryTotalCost = document.getElementById('groceryTotalCost');
   const groceryListContainer = document.getElementById('groceryListContainer');
 
+  // Redirect if not logged in
   if (!USER_ID) {
     window.location.href = '/login.html';
     return;
-  }
-
-  if (authSection) {
-    authSection.innerHTML = `
-      <button class="btn btn-outline-custom btn-sm" id="logout-button">
-        Logout
-      </button>
-    `;
-  }
-
-  const logoutButton = document.getElementById('logout-button');
-
-  if (logoutButton) {
-    logoutButton.addEventListener('click', () => {
-      localStorage.removeItem('currentUser');
-      window.location.href = '/index.html';
-    });
   }
 
   async function loadDraftMealPlan() {

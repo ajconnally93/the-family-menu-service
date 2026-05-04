@@ -31,7 +31,7 @@
           My Grocery List
         </a>
 
-        <span id="auth-section"></span>
+        <div id="auth-section"></div>
       </div>
     </div>
   </div>
@@ -41,7 +41,7 @@
       <div class="eyebrow">Your saved selections</div>
       <h1 class="mb-2">My Meal Plan</h1>
       <p class="page-intro">
-        View your selected meals, remove meals you no longer want, and review estimated cost before generating your grocery list.
+        View your selected meals, remove meals you no longer want, and review estimated cost.
       </p>
     </div>
 
@@ -54,7 +54,6 @@
 
     <div id="mealPlanContainer" class="row g-4"></div>
 
-    <!-- Recipe Modal -->
     <div class="modal fade" id="recipeModal" tabindex="-1">
       <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content recipe-modal-content">
@@ -84,52 +83,8 @@
     </div>
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/myMealPlan.js"></script>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-  const USER_ID = currentUser?._id;
-
-  const authSection = document.getElementById('auth-section');
-  const groceryListLink = document.getElementById('grocery-list-link');
-
-  if (authSection) {
-    if (USER_ID) {
-      authSection.innerHTML = `
-        <button class="btn btn-outline-custom btn-sm" id="logout-button">
-          Logout
-        </button>
-      `;
-    } else {
-      authSection.innerHTML = `
-        <a class="btn btn-outline-custom btn-sm" href="/login.html">Login</a>
-        <a class="btn btn-primary btn-sm" href="/register.html">Register</a>
-      `;
-    }
-  }
-
-  if (!USER_ID) {
-    if (groceryListLink) {
-      groceryListLink.setAttribute('title', 'Log in to access your grocery list');
-    }
-
-    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((el) => {
-      new bootstrap.Tooltip(el);
-    });
-  }
-
-  const logoutButton = document.getElementById('logout-button');
-
-  if (logoutButton) {
-    logoutButton.addEventListener('click', () => {
-      localStorage.removeItem('currentUser');
-      window.location.href = '/index.html';
-    });
-  }
-});
-</script>
-
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/authNav.js"></script>
+  <script src="js/myMealPlan.js"></script>
 </body>
 </html>

@@ -32,8 +32,7 @@ loginForm?.addEventListener('submit', async (event) => {
     }
 
     localStorage.setItem('currentUser', JSON.stringify(result.data));
-
-    window.location.href = '/my-meal-plan.html';
+    window.location.href = '/index.html';
   } catch (error) {
     loginError.textContent = error.message;
     loginError.classList.remove('d-none');

@@ -30,8 +30,7 @@ form.addEventListener('submit', async (e) => {
     }
 
     localStorage.setItem('currentUser', JSON.stringify(result.data));
-
-    window.location.href = '/my-meal-plan.html';
+    window.location.href = '/index.html';
   } catch (err) {
     errorBox.textContent = err.message;
     errorBox.classList.remove('d-none');

@@ -115,18 +115,14 @@ h3 {
   background: #fff;
   font-size: 0.93rem;
   color: var(--text-soft);
-  /* color: var(--primary-dark); */
   border-color: rgba(90, 143, 82, 0.35);
   cursor: pointer;
-  /* font-weight: 700; */
 }
 
 .chip.active {
   background: rgba(90, 143, 82, 0.12);
   color: var(--primary-dark);
   border-color: var(--primary-dark);
-  /* border-color: rgba(90, 143, 82, 0.35); */
-  /* font-weight: 700; */
 }
 
 /* Meal Cards */
@@ -340,7 +336,7 @@ h3 {
   padding-left: 0.25rem;
 }
 
-/* Group labels (Dietary etc) */
+/* Group labels */
 .filter-group-label {
   font-size: 0.7rem;
   font-weight: 700;
@@ -359,4 +355,10 @@ h3 {
   background: rgba(255, 255, 255, 0.6);
   padding: 0.4rem 0.6rem;
   border-radius: 10px;
+}
+
+/* ONLY FIX ADDED */
+bit-notification-bar-root,
+bit-notification-bar-root * {
+  pointer-events: none !important;
 }
