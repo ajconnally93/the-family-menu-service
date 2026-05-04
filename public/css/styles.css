@@ -110,19 +110,29 @@ h3 {
   display: inline-flex;
   align-items: center;
   padding: 0.48rem 0.8rem;
-  border-radius: 999px;
-  border: 1px solid var(--border);
+  border-radius: 8px;
+  border: 1px solid rgba(90, 143, 82, 0.35);
   background: #fff;
   font-size: 0.93rem;
   color: var(--text-soft);
-  border-color: rgba(90, 143, 82, 0.35);
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chip:hover {
+  background-color: rgba(90, 143, 82, 0.1);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.chip.active:hover {
+  transform: none;
 }
 
 .chip.active {
-  background: rgba(90, 143, 82, 0.12);
-  color: var(--primary-dark);
-  border-color: var(--primary-dark);
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary);
 }
 
 /* Meal Cards */
