@@ -295,13 +295,18 @@ h3 {
   display: inline-block;
   color: var(--text-soft);
   text-decoration: none;
-  transition: transform 0.15s ease, opacity 0.15s ease, color 0.15s ease;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
 }
 
 .nav-link-custom:hover {
   color: var(--primary-dark);
-  transform: translateY(-1px);
-  opacity: 0.9;
+  border-bottom: 2px solid var(--primary-dark);
+}
+
+.nav-link-custom.active {
+  color: var(--primary-dark);
+  border-bottom: 2px solid var(--primary-dark);
 }
 
 /* Misc Cards */
