@@ -1,6 +1,8 @@
 const currentUser = JSON.parse(localStorage.getItem('currentUser'));
 const USER_ID = currentUser?._id;
 
+let mealDisplayOrder = [];
+
 async function loadMealPlan() {
   try {
     if (!USER_ID) {
@@ -68,6 +70,7 @@ function renderMealPlan(mealPlan) {
 
   if (!mealPlan || !mealPlan.meals || !mealPlan.meals.length) {
     totalCostElement.textContent = '$0.00';
+    mealDisplayOrder = [];
 
     container.innerHTML = `
       <div class="col-12">
@@ -91,28 +94,44 @@ function renderMealPlan(mealPlan) {
 
   totalCostElement.textContent = formattedTotal;
 
-  const groupedMeals = [];
+  const currentMealIds = [
+    ...new Set(mealPlan.meals.map((entry) => String(entry.mealId)))
+  ];
+
+  currentMealIds.forEach((mealId) => {
+    if (!mealDisplayOrder.includes(mealId)) {
+      mealDisplayOrder.push(mealId);
+    }
+  });
+
+  mealDisplayOrder = mealDisplayOrder.filter((mealId) =>
+    currentMealIds.includes(mealId)
+  );
+
+  const groupedMeals = new Map();
 
   mealPlan.meals.forEach((entry) => {
-    const existingGroup = groupedMeals.find(
-      (group) => String(group.mealId) === String(entry.mealId)
-    );
+    const mealId = String(entry.mealId);
 
-    if (existingGroup) {
-      existingGroup.quantity += 1;
+    if (groupedMeals.has(mealId)) {
+      groupedMeals.get(mealId).quantity += 1;
     } else {
-      groupedMeals.push({
+      groupedMeals.set(mealId, {
         ...entry,
         quantity: 1
       });
     }
   });
 
-  groupedMeals.forEach((entry) => {
-    const meal = entry.meal || {};
+  const mealsToRender = Array.from(groupedMeals.values()).sort((a, b) => {
+    return (
+      mealDisplayOrder.indexOf(String(a.mealId)) -
+      mealDisplayOrder.indexOf(String(b.mealId))
+    );
+  });
 
-    // testing why time to cook isn't displaying
-    console.log('Meal from plan:', meal);
+  mealsToRender.forEach((entry) => {
+    const meal = entry.meal || {};
 
     const col = document.createElement('div');
     col.className = 'col-md-6 col-lg-3';
@@ -164,17 +183,17 @@ function renderMealPlan(mealPlan) {
                 data-plan-id="${mealPlan._id}"
                 data-meal-id="${entry.mealId}"
               >
-                Remove Meal
+                ${entry.quantity > 1 ? 'Remove One' : 'Remove Meal'}
               </button>
 
               <button
                 class="btn btn-outline-custom view-recipe-btn"
                 type="button"
-                data-title="${meal.title || 'Untitled Meal'}"
+                data-title="${escapeHtml(meal.title || 'Untitled Meal')}"
                 data-cost="${formattedMealCost}"
-                data-description="${meal.description || 'No description available.'}"
-                data-ingredients='${JSON.stringify(meal.ingredients || [])}'
-                data-instructions='${JSON.stringify(meal.instructions || [])}'
+                data-description="${escapeHtml(meal.description || 'No description available.')}"
+                data-ingredients="${escapeHtml(JSON.stringify(meal.ingredients || []))}"
+                data-instructions="${escapeHtml(JSON.stringify(meal.instructions || []))}"
               >
                 View Recipe
               </button>
