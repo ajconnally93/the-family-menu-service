@@ -257,7 +257,6 @@ function setupAddToPlanButtons() {
         return;
       }
 
-      const originalText = button.textContent;
       button.disabled = true;
       button.textContent = 'Adding...';
 
@@ -309,7 +308,9 @@ function setupAddToPlanButtons() {
         }
 
         // add to local state
-        mealIdsInPlan.push(String(mealId));
+        if (!mealIdsInPlan.includes(String(mealId))) {
+          mealIdsInPlan.push(String(mealId));
+        }
 
         button.textContent = 'Added!';
 
