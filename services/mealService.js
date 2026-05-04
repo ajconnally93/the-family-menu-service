@@ -19,13 +19,14 @@ function escapeRegex(value) {
 
 function buildMealQuery({ search, tag }) {
   const query = {};
-    // Built functionality for searching if I decided to implement it later
-    // This will also support the ability to filter by tag and then searching based on the selected tags
+    // This will also support the ability to filter by tag and then searching based on the selected tags if I choose to implement
   if (search) {
+    const escapedSearch = escapeRegex(search.trim());
+
     query.$or = [
-      { title: { $regex: search, $options: 'i' } },
-      { description: { $regex: search, $options: 'i' } },
-      { tags: { $regex: search, $options: 'i' } }
+      { title: { $regex: escapedSearch, $options: 'i' } },
+      { description: { $regex: escapedSearch, $options: 'i' } },
+      { tags: { $regex: escapedSearch, $options: 'i' } }
     ];
   }
 
