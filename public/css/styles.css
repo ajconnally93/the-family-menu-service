@@ -612,3 +612,30 @@ body.modal-open {
 .meal-meta .price {
   font-size: 0.95rem;
 }
+
+.page-loading-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-soft);
+}
+
+.page-loading-card h3 {
+  color: var(--primary-dark);
+  margin-bottom: 0.5rem;
+}
+
+.loading-dots::after {
+  content: '';
+  animation: loadingDots 1.2s infinite;
+}
+
+@keyframes loadingDots {
+  0% { content: ''; }
+  33% { content: '.'; }
+  66% { content: '..'; }
+  100% { content: '...'; }
+}

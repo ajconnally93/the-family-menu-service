@@ -3,12 +3,27 @@ const USER_ID = currentUser?._id;
 
 let mealDisplayOrder = [];
 
+function renderMealPlanLoadingState() {
+  const container = document.getElementById('mealPlanContainer');
+
+  container.innerHTML = `
+    <div class="col-12">
+      <div class="page-loading-card">
+        <h3 class="loading-dots">Loading your meal plan...</h3>
+        <p>Getting your selected meals ready...</p>
+      </div>
+    </div>
+  `;
+}
+
 async function loadMealPlan() {
   try {
     if (!USER_ID) {
       window.location.href = '/login.html';
       return;
     }
+
+    renderMealPlanLoadingState();
 
     const planLookupResponse = await fetch(
       `/api/meal-plans?userId=${encodeURIComponent(USER_ID)}&status=draft`

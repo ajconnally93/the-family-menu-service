@@ -46,6 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function loadGroceryListPage() {
     try {
+      renderGroceryListLoadingState(); // ✅ loading state added here
+
       const currentMealPlan = await loadDraftMealPlan();
 
       if (!currentMealPlan || !currentMealPlan._id) {
@@ -131,6 +133,19 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="feature-card">
           <h3>${title}</h3>
           <p>${message}</p>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderGroceryListLoadingState() {
+    groceryTotalCost.textContent = '--';
+
+    groceryListContainer.innerHTML = `
+      <div class="col-12">
+        <div class="feature-card">
+          <h3 class="loading-dots">Loading your grocery list...</h3>
+          <p>Gathering your ingredients and totals...</p>
         </div>
       </div>
     `;

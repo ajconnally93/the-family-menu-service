@@ -39,6 +39,19 @@ async function loadCurrentMealPlanMealIds() {
   }
 }
 
+function renderMealsLoadingState() {
+  const container = document.getElementById('mealContainer');
+
+  container.innerHTML = `
+    <div class="col-12">
+      <div class="page-loading-card">
+        <h3 class="loading-dots">Loading meals...</h3>
+        <p>Finding recipes for your meal library...</p>
+      </div>
+    </div>
+  `;
+}
+
 async function loadMeals() {
   try {
     const params = new URLSearchParams();
@@ -52,6 +65,7 @@ async function loadMeals() {
     }
 
     const url = `/api/meals?${params.toString()}`;
+    renderMealsLoadingState();
     const response = await fetch(url);
     const result = await response.json();
 
