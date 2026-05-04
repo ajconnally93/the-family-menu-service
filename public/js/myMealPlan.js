@@ -70,11 +70,7 @@ function renderMealPlan(mealPlan) {
     const meal = entry.meal || {};
 
     const col = document.createElement('div');
-    col.className = 'col-md-6 col-lg-4';
-
-    const tagsHtml = (meal.tags || [])
-      .map((tag) => `<span class="chip">${tag}</span>`)
-      .join('');
+    col.className = 'col-md-6 col-lg-3';
 
     const formattedMealCost =
       typeof meal.estimatedMealCost === 'number'
@@ -92,9 +88,7 @@ function renderMealPlan(mealPlan) {
 
           <div class="meal-footer">
             <p class="price">Estimated cost: $${formattedMealCost}</p>
-            <div class="meal-tags">
-              ${tagsHtml}
-            </div>
+            
             <div class="meal-actions">
               <button
                 class="btn btn-outline-danger remove-meal-btn"

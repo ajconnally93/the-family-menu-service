@@ -65,11 +65,7 @@ function renderMeals(meals) {
 
   meals.forEach((meal) => {
     const col = document.createElement('div');
-    col.className = 'col-md-6 col-lg-4';
-
-    const tagsHtml = (meal.tags || [])
-      .map((tag) => `<span class="chip">${tag}</span>`)
-      .join('');
+    col.className = 'col-md-6 col-lg-3';
 
     const formattedCost =
       typeof meal.estimatedMealCost === 'number'
@@ -78,24 +74,23 @@ function renderMeals(meals) {
 
     const formattedCookTime = formatCookTime(meal.cookTimeMinutes);
 
-    // using meal._id since it's working with raw JS data;
-    // Mongoose uses _id even though the design doc refers to mealId.
     col.innerHTML = `
       <div class="meal-card h-100">
         <div class="meal-img">Meal Image</div>
         <div class="meal-body">
           <div class="meal-content">
             <h3>${meal.title || 'Untitled Meal'}</h3>
-            ${formattedCookTime ? `<p class="meal-time">${formattedCookTime}</p>` : ''}
+
+            ${formattedCookTime ? `<p class="meal-time mb-1">${formattedCookTime}</p>` : ''}
+
+            <p class="price mb-2">Estimated cost: $${formattedCost}</p>
+
             <p>${meal.description || 'No description available.'}</p>
           </div>
 
           <div class="meal-footer">
-            <p class="price">Estimated cost: $${formattedCost}</p>
 
-            <div class="meal-tags">
-              ${tagsHtml}
-            </div>
+            
 
             <div class="meal-actions">
               <button 
