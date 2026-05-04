@@ -157,7 +157,7 @@ function renderMeals(meals) {
                 type="button"
                 data-meal-id="${meal._id}"
               >
-                ${isInPlan ? '✓ Added · Add again?' : 'Add to Meal Plan'}
+                ${isInPlan ? '✓ In Plan · Add an Extra' : 'Add to Meal Plan'}
               </button>
 
               <button
@@ -346,7 +346,7 @@ function setupAddToPlanButtons() {
         button.textContent = 'Added!';
 
         setTimeout(() => {
-          button.textContent = '✓ Added · Add again?';
+          button.textContent = '✓ In Plan · Add an Extra';
           button.classList.remove('btn-primary');
           button.classList.add('btn-success');
           button.disabled = false;
