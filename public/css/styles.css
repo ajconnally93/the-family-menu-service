@@ -398,3 +398,30 @@ html {
 .filter-group-label {
   color: var(--primary-dark);
 }
+
+.grocery-card {
+  cursor: pointer;
+  transition: background-color 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+}
+
+.grocery-card:hover {
+  background-color: rgba(90, 143, 82, 0.06);
+  transform: translateY(-1px);
+}
+
+.grocery-card.checked-off {
+  background-color: #eeeeee;
+  opacity: 0.6;
+}
+
+.grocery-card.checked-off:hover {
+  background-color: #e5e5e5;
+}
+
+.grocery-card.checked-off h3,
+.grocery-card.checked-off p,
+.grocery-card.checked-off span,
+.grocery-card.checked-off strong {
+  color: var(--text-soft);
+  text-decoration: line-through;
+}

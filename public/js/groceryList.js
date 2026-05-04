@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const groceryTotalCost = document.getElementById('groceryTotalCost');
   const groceryListContainer = document.getElementById('groceryListContainer');
 
-  // Redirect if not logged in
+  // redirect if not logged in
   if (!USER_ID) {
     window.location.href = '/login.html';
     return;
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
       col.className = 'col-md-6 col-lg-4';
 
       col.innerHTML = `
-        <div class="feature-card h-100">
+        <div class="feature-card grocery-card h-100">
           <h3>${item.name}</h3>
           <p class="mb-2">
             <strong>Quantity:</strong>
@@ -108,6 +108,18 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
 
       groceryListContainer.appendChild(col);
+    });
+
+    setupGroceryCheckoff();
+  }
+
+  function setupGroceryCheckoff() {
+    const groceryCards = document.querySelectorAll('.grocery-card');
+
+    groceryCards.forEach((card) => {
+      card.addEventListener('click', () => {
+        card.classList.toggle('checked-off');
+      });
     });
   }
 
