@@ -16,8 +16,8 @@ function renderAuthNav() {
     `;
   } else {
     authSection.innerHTML = `
-      <a class="btn btn-outline-custom btn-sm" href="/login.html">Login</a>
-      <a class="btn btn-primary btn-sm" href="/register.html">Register</a>
+      <a class="btn btn-outline-custom btn-sm btn-login" href="/login.html">Login</a>
+      <a class="btn btn-primary btn-sm btn-register" href="/register.html">Register</a>
     `;
   }
 

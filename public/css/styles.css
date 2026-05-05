@@ -691,3 +691,18 @@ body.modal-open {
 .grocery-card.quantity-increased .quantity-increased-note * {
   text-decoration: none !important;
 }
+
+@media (max-width: 768px) {
+  .nav .btn-register {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    font-weight: 600;
+  }
+
+  .nav .btn-register:hover,
+  .nav .btn-register:active {
+    background: var(--primary-dark);
+    color: #fff;
+  }
+}
