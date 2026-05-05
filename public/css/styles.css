@@ -44,7 +44,11 @@ h3 {
     padding-right: 1rem;
   }
   .nav a {
-    color: var(--primary-dark)
+    color: #2f5d50;
+  }
+  .nav .btn {
+    /* padding: 0.6rem 1rem; */
+    line-height: 1;
   }
 }
 

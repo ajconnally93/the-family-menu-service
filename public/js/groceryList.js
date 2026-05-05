@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
         >
           ${
             quantityIncreased
-              ? `<div class="quantity-increased-note mb-2">⚠ Quantity increased since checked off.</div>`
+              ? `<div class="quantity-increased-note mb-2">⚠ Quantity increased since originally checked off.</div>`
               : ''
           }
 
