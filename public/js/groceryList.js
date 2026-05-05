@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function loadGroceryListPage() {
     try {
-      renderGroceryListLoadingState(); // ✅ loading state added here
+      renderGroceryListLoadingState();
 
       const currentMealPlan = await loadDraftMealPlan();
 
@@ -78,9 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderGroceryList(groceryList) {
     const items = groceryList.items || [];
 
-    groceryTotalCost.textContent = `$${Number(
-      groceryList.estimatedTotalCost || 0
-    ).toFixed(2)}`;
+    updateVisibleGroceryTotal(items);
 
     if (!items.length) {
       renderMessage(
@@ -97,11 +95,14 @@ document.addEventListener('DOMContentLoaded', () => {
       col.className = 'col-md-6 col-lg-4';
 
       col.innerHTML = `
-        <div class="feature-card grocery-card h-100">
-          <h3>${item.name}</h3>
+        <div 
+          class="feature-card grocery-card h-100 ${item.checked ? 'checked-off' : ''}"
+          data-ingredient-id="${escapeHtml(item.ingredientId)}"
+        >
+          <h3>${escapeHtml(item.name)}</h3>
           <p class="mb-2">
             <strong>Quantity:</strong>
-            ${item.totalQuantity} ${item.unit}
+            ${item.totalQuantity} ${escapeHtml(item.unit)}
           </p>
           <p class="price mb-0">
             Estimated cost: $${Number(item.estimatedLineCost || 0).toFixed(2)}
@@ -112,17 +113,84 @@ document.addEventListener('DOMContentLoaded', () => {
       groceryListContainer.appendChild(col);
     });
 
-    setupGroceryCheckoff();
+    setupGroceryCheckoff(groceryList.mealPlanId);
   }
 
-  function setupGroceryCheckoff() {
+  function updateVisibleGroceryTotal(items) {
+  const remainingTotal = items
+    .filter((item) => !item.checked)
+    .reduce((sum, item) => {
+      return sum + Number(item.estimatedLineCost || 0);
+    }, 0);
+
+  groceryTotalCost.textContent = `$${remainingTotal.toFixed(2)}`;
+  }
+
+  function setupGroceryCheckoff(mealPlanId) {
     const groceryCards = document.querySelectorAll('.grocery-card');
 
     groceryCards.forEach((card) => {
-      card.addEventListener('click', () => {
+      card.addEventListener('click', async () => {
+        const ingredientId = card.dataset.ingredientId;
+
+        const isChecked = card.classList.contains('checked-off');
+        const newCheckedState = !isChecked;
+
         card.classList.toggle('checked-off');
+
+        try {
+          const response = await fetch(
+            `/api/meal-plans/${mealPlanId}/grocery-lists/items/${encodeURIComponent(
+              ingredientId
+            )}/checked`,
+            {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                checked: newCheckedState
+              })
+            }
+          );
+
+          if (!response.ok) {
+            const errorResult = await response.json();
+            throw new Error(
+              errorResult.error?.message || 'Unable to update grocery item.'
+            );
+          }
+
+          updateVisibleGroceryTotalFromDOM();
+
+        } catch (error) {
+          console.error('Error updating grocery item:', error);
+
+          // rollback UI if request fails
+          card.classList.toggle('checked-off');
+          alert(error.message || 'Unable to update grocery item.');
+        }
       });
     });
+  }
+
+  function updateVisibleGroceryTotalFromDOM() {
+  const groceryCards = document.querySelectorAll('.grocery-card');
+
+  let total = 0;
+
+  groceryCards.forEach((card) => {
+    if (!card.classList.contains('checked-off')) {
+      const priceText = card.querySelector('.price').textContent;
+      const match = priceText.match(/\$([\d.]+)/);
+
+      if (match) {
+        total += Number(match[1]);
+      }
+    }
+  });
+
+  groceryTotalCost.textContent = `$${total.toFixed(2)}`;
   }
 
   function renderMessage(title, message) {
@@ -131,8 +199,8 @@ document.addEventListener('DOMContentLoaded', () => {
     groceryListContainer.innerHTML = `
       <div class="col-12">
         <div class="feature-card">
-          <h3>${title}</h3>
-          <p>${message}</p>
+          <h3>${escapeHtml(title)}</h3>
+          <p>${escapeHtml(message)}</p>
         </div>
       </div>
     `;
@@ -149,6 +217,15 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </div>
     `;
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;');
   }
 
   loadGroceryListPage();

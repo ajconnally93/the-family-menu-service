@@ -1,3 +1,4 @@
+const GroceryList = require('../models/GroceryList');
 const MealPlan = require('../models/MealPlan');
 
 const generateGroceryList = async (planId) => {
@@ -21,6 +22,14 @@ const generateGroceryList = async (planId) => {
     throw error;
   }
 
+  // get existing grocery list to preserve checked state
+  const existingGroceryList = await GroceryList.findOne({
+    mealPlanId: planId
+  }).sort({
+    generatedAt: -1,
+    createdAt: -1
+  });
+
   // 2. Aggregate ingredients
   const ingredientMap = new Map();
 
@@ -33,20 +42,29 @@ const generateGroceryList = async (planId) => {
       const key = `${ingredient.ingredientId}-${ingredient.unit}`;
 
       if (!ingredientMap.has(key)) {
+        // find existing item (if it exists)
+        const existingItem = existingGroceryList?.items.find(
+          (item) =>
+            String(item.ingredientId) === String(ingredient.ingredientId) &&
+            String(item.unit) === String(ingredient.unit)
+        );
+
         ingredientMap.set(key, {
           ingredientId: ingredient.ingredientId,
           name: ingredient.name,
           totalQuantity: 0,
           unit: ingredient.unit,
           estimatedLineCost: 0,
-          sourceMealIds: []
+          sourceMealIds: [],
+          checked: existingItem?.checked || false // PRESERVE CHECKED STATE
         });
       }
 
       const existing = ingredientMap.get(key);
 
       existing.totalQuantity += ingredient.quantity;
-      existing.estimatedLineCost += (ingredient.quantity * ingredient.estimatedUnitCost);
+      existing.estimatedLineCost +=
+        ingredient.quantity * ingredient.estimatedUnitCost;
 
       if (!existing.sourceMealIds.includes(meal._id)) {
         existing.sourceMealIds.push(meal._id);
@@ -70,6 +88,37 @@ const generateGroceryList = async (planId) => {
   };
 };
 
+async function updateGroceryItemCheckedStatus(mealPlanId, ingredientId, checked) {
+  const groceryList = await GroceryList.findOne({
+    mealPlanId
+  });
+
+  if (!groceryList) {
+    const error = new Error('Grocery list not found');
+    error.statusCode = 404;
+    error.code = 'GROCERY_LIST_NOT_FOUND';
+    throw error;
+  }
+
+  const item = groceryList.items.find(
+    (groceryItem) => String(groceryItem.ingredientId) === String(ingredientId)
+  );
+
+  if (!item) {
+    const error = new Error('Grocery item not found');
+    error.statusCode = 404;
+    error.code = 'GROCERY_ITEM_NOT_FOUND';
+    throw error;
+  }
+
+  item.checked = checked;
+
+  await groceryList.save();
+
+  return groceryList;
+}
+
 module.exports = {
-  generateGroceryList
+  generateGroceryList,
+  updateGroceryItemCheckedStatus
 };

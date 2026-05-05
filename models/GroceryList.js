@@ -35,6 +35,10 @@ const groceryListItemSchema = new mongoose.Schema(
         }
       ],
       default: []
+    },
+    checked: {
+      type: Boolean,
+      default: false
     }
   },
   { _id: false }

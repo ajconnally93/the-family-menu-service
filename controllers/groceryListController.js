@@ -1,3 +1,4 @@
+const groceryListService = require('../services/groceryListService');
 const GroceryList = require('../models/GroceryList');
 const { generateGroceryList } = require('../services/groceryListService');
 
@@ -59,7 +60,28 @@ const getLatestGroceryList = async (req, res) => {
   }
 };
 
+async function updateGroceryItemCheckedStatus(req, res, next) {
+  try {
+    const { planId, ingredientId } = req.params;
+    const { checked } = req.body;
+
+    const groceryList = await groceryListService.updateGroceryItemCheckedStatus(
+      planId,
+      ingredientId,
+      checked
+    );
+
+    res.json({
+      success: true,
+      data: groceryList
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   generateAndSaveGroceryList,
-  getLatestGroceryList
+  getLatestGroceryList,
+  updateGroceryItemCheckedStatus
 };
