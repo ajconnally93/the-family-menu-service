@@ -35,11 +35,16 @@ h3 {
 
 @media (max-width: 768px) {
   .topbar {
-    padding-left: 1.5rem;
+    padding-left: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
   }
   .nav {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .nav a {
+    color: var(--primary-dark)
   }
 }
 
