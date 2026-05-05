@@ -639,3 +639,36 @@ body.modal-open {
   66% { content: '..'; }
   100% { content: '...'; }
 }
+
+.grocery-card.quantity-increased {
+  background: #fff8ed;
+  border-color: var(--warning);
+  box-shadow: 0 0 0 3px rgba(201, 135, 26, 0.14);
+}
+
+.grocery-card.quantity-increased.checked-off {
+  opacity: 1;
+}
+
+.quantity-increased-note {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 0.5rem;
+  margin-bottom: 0.75rem;
+
+  background: #fff1f1;
+  border: 1px solid #f5c2c2;
+  border-radius: 10px;
+
+  color: #a94442;
+  font-weight: 700;
+  font-size: 0.9rem;
+
+  text-decoration: none !important;
+}
+
+.grocery-card.quantity-increased .quantity-increased-note,
+.grocery-card.quantity-increased .quantity-increased-note * {
+  text-decoration: none !important;
+}

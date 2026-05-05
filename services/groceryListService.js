@@ -56,7 +56,8 @@ const generateGroceryList = async (planId) => {
           unit: ingredient.unit,
           estimatedLineCost: 0,
           sourceMealIds: [],
-          checked: existingItem?.checked || false // PRESERVE CHECKED STATE
+          checked: existingItem?.checked || false, // PRESERVE CHECKED STATE
+          checkedQuantity: existingItem?.checkedQuantity ?? null
         });
       }
 
@@ -112,6 +113,7 @@ async function updateGroceryItemCheckedStatus(mealPlanId, ingredientId, checked)
   }
 
   item.checked = checked;
+  item.checkedQuantity = checked ? item.totalQuantity : null;
 
   await groceryList.save();
 

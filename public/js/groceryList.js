@@ -91,19 +91,34 @@ document.addEventListener('DOMContentLoaded', () => {
     groceryListContainer.innerHTML = '';
 
     items.forEach((item) => {
+      const quantityIncreased =
+        item.checked &&
+        item.checkedQuantity !== null &&
+        item.totalQuantity > item.checkedQuantity;
+
       const col = document.createElement('div');
       col.className = 'col-md-6 col-lg-4';
 
       col.innerHTML = `
         <div 
-          class="feature-card grocery-card h-100 ${item.checked ? 'checked-off' : ''}"
+          class="feature-card grocery-card h-100 ${item.checked ? 'checked-off' : ''} ${
+            quantityIncreased ? 'quantity-increased' : ''
+          }"
           data-ingredient-id="${escapeHtml(item.ingredientId)}"
         >
+          ${
+            quantityIncreased
+              ? `<div class="quantity-increased-note mb-2">⚠ Quantity increased since checked off.</div>`
+              : ''
+          }
+
           <h3>${escapeHtml(item.name)}</h3>
+
           <p class="mb-2">
             <strong>Quantity:</strong>
             ${item.totalQuantity} ${escapeHtml(item.unit)}
           </p>
+
           <p class="price mb-0">
             Estimated cost: $${Number(item.estimatedLineCost || 0).toFixed(2)}
           </p>
@@ -161,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
             );
           }
 
+          updateCardState(card, newCheckedState);
           updateVisibleGroceryTotalFromDOM();
 
         } catch (error) {
@@ -227,6 +243,18 @@ document.addEventListener('DOMContentLoaded', () => {
       .replaceAll('<', '&lt;')
       .replaceAll('>', '&gt;');
   }
+
+  function updateCardState(card, isChecked) {
+  if (!isChecked) {
+    card.classList.remove('checked-off');
+    card.classList.remove('quantity-increased');
+
+    const note = card.querySelector('.quantity-increased-note');
+    if (note) note.remove();
+
+    return;
+  }
+}
 
   loadGroceryListPage();
 });

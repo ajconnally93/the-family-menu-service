@@ -39,7 +39,12 @@ const groceryListItemSchema = new mongoose.Schema(
     checked: {
       type: Boolean,
       default: false
+    },
+    checkedQuantity: {
+      type: Number,
+      default: null
     }
+    
   },
   { _id: false }
 );
