@@ -33,6 +33,16 @@ h3 {
   border-bottom: 1px solid var(--border);
 }
 
+@media (max-width: 768px) {
+  .topbar {
+    padding-left: 1.5rem;
+  }
+  .nav {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
 .nav {
   display: flex;
   align-items: center;
